@@ -47,8 +47,8 @@ const StartUp = () => {
     };
 
     // 计算按钮的大小和位置
-    const buttonWidth = 200;
-    const buttonHeight = 100;
+    const buttonWidth = "50%";
+    const buttonHeight = "40%";
     const buttonYOffset = 150;
 
     const buttonY1 = hh + buttonYOffset;
@@ -56,88 +56,31 @@ const StartUp = () => {
     const buttonY3 = hh - buttonYOffset;
     const buttonY4 = hh - 2 * buttonYOffset;
 
-		const button1 = useRef<Button.Type>();
 
     return (
+			<align-node windowRoot style={{
+			justifyContent: 'center',
+			alignItems: 'center'
+		}}>
         <align-node style={{
-					width: '60%',
-					height: '60%'
-				}}
-				onLayout={(width, height) => {
-					let {current} = sprite;
-					if (current) {
-						current.position = Vec2(width / 2, height / 2);
-						current.size = Size(width, height);
-					}
+					width: '100%',  
+		      height: '100%',
+					justifyContent: 'center',
+					alignItems: 'center'
 				}}>
             <Button 
                 type="click"
                 x={0}
-                y={buttonY1}
+                y={0}
                 width={buttonWidth}
                 height={buttonHeight}
                 onClick={newGameClick}
                 normalImage="Image/button/button.clip|button_up"
                 pressImage="Image/button/button.clip|button_down"
+								text="新游戏"
             >
-              <label
-                  text="新游戏"
-                  fontName="sarasa-mono-sc-regular"
-                  fontSize={40}
-                  color3={0xffffff}
-              />
             </Button>
-            <Button
-                type="click"
-                x={0}
-                y={buttonY2}
-                width={buttonWidth}
-                height={buttonHeight}
-                onClick={continueGameClick}
-                normalImage="Image/button/button.clip|button_up"
-                pressImage="Image/button/button.clip|button_down"
-            >
-                <label
-                    text="继续游戏"
-                    fontName="sarasa-mono-sc-regular"
-                    fontSize={40}
-                    color3={0xffffff}
-                />
-            </Button>
-            <Button
-                type="click"
-                x={0}
-                y={buttonY3}
-                width={buttonWidth}
-                height={buttonHeight}
-                onClick={loadSaveClick}
-                normalImage="Image/button/button.clip|button_up"
-                pressImage="Image/button/button.clip|button_down"
-            >
-                <label
-                    text="读取存档"
-                    fontName="sarasa-mono-sc-regular"
-                    fontSize={40}
-                    color3={0xffffff}
-                />
-            </Button>
-            <Button
-                type="click"
-                x={0}
-                y={buttonY4}
-                width={buttonWidth}
-                height={buttonHeight}
-                onClick={exitClick}
-                normalImage="Image/button/button.clip|button_up"
-                pressImage="Image/button/button.clip|button_down"
-            >
-                <label
-                    text="退出游戏"
-                    fontName="sarasa-mono-sc-regular"
-                    fontSize={40}
-                    color3={0xffffff}
-                />
-            </Button>
+        </align-node>
         </align-node>
     );
 };

@@ -3,13 +3,11 @@ local ____exports = {} -- 1
 local ____DoraX = require("DoraX") -- 1
 local React = ____DoraX.React -- 1
 local toNode = ____DoraX.toNode -- 1
-local useRef = ____DoraX.useRef -- 1
 local ____Dora = require("Dora") -- 2
 local Director = ____Dora.Director -- 2
 local Vec2 = ____Dora.Vec2 -- 2
 local View = ____Dora.View -- 2
 local tolua = ____Dora.tolua -- 2
-local Size = ____Dora.Size -- 2
 local ____Button = require("Script.UI.Button") -- 4
 local Button = ____Button.Button -- 4
 local DesignWidth = 480 -- 7
@@ -48,87 +46,35 @@ local function StartUp() -- 35
 	local function exitClick(switched) -- 45
 		print("Button clicked, switched: " .. (switched and "on" or "off")) -- 46
 	end -- 45
-	local buttonWidth = 200 -- 50
-	local buttonHeight = 100 -- 51
+	local buttonWidth = "50%" -- 50
+	local buttonHeight = "40%" -- 51
 	local buttonYOffset = 150 -- 52
 	local buttonY1 = hh + buttonYOffset -- 54
 	local buttonY2 = hh -- 55
 	local buttonY3 = hh - buttonYOffset -- 56
 	local buttonY4 = hh - 2 * buttonYOffset -- 57
-	local button1 = useRef() -- 59
-	return React.createElement( -- 61
-		"align-node", -- 61
-		{ -- 61
-			style = {width = "60%", height = "60%"}, -- 61
-			onLayout = function(width, height) -- 61
-				local ____sprite_0 = sprite -- 67
-				local current = ____sprite_0.current -- 67
-				if current then -- 67
-					current.position = Vec2(width / 2, height / 2) -- 69
-					current.size = Size(width, height) -- 70
-				end -- 70
-			end -- 66
-		}, -- 66
-		React.createElement( -- 66
-			Button, -- 73
-			{ -- 73
-				type = "click", -- 73
-				x = 0, -- 73
-				y = buttonY1, -- 73
-				width = buttonWidth, -- 73
-				height = buttonHeight, -- 73
-				onClick = newGameClick, -- 73
-				normalImage = "Image/button/button.clip|button_up", -- 73
-				pressImage = "Image/button/button.clip|button_down" -- 73
-			}, -- 73
-			React.createElement("label", {text = "新游戏", fontName = "sarasa-mono-sc-regular", fontSize = 40, color3 = 16777215}) -- 73
-		), -- 73
-		React.createElement( -- 73
-			Button, -- 90
-			{ -- 90
-				type = "click", -- 90
-				x = 0, -- 90
-				y = buttonY2, -- 90
-				width = buttonWidth, -- 90
-				height = buttonHeight, -- 90
-				onClick = continueGameClick, -- 90
-				normalImage = "Image/button/button.clip|button_up", -- 90
-				pressImage = "Image/button/button.clip|button_down" -- 90
-			}, -- 90
-			React.createElement("label", {text = "继续游戏", fontName = "sarasa-mono-sc-regular", fontSize = 40, color3 = 16777215}) -- 90
-		), -- 90
-		React.createElement( -- 90
-			Button, -- 107
-			{ -- 107
-				type = "click", -- 107
-				x = 0, -- 107
-				y = buttonY3, -- 107
-				width = buttonWidth, -- 107
-				height = buttonHeight, -- 107
-				onClick = loadSaveClick, -- 107
-				normalImage = "Image/button/button.clip|button_up", -- 107
-				pressImage = "Image/button/button.clip|button_down" -- 107
-			}, -- 107
-			React.createElement("label", {text = "读取存档", fontName = "sarasa-mono-sc-regular", fontSize = 40, color3 = 16777215}) -- 107
-		), -- 107
-		React.createElement( -- 107
-			Button, -- 124
-			{ -- 124
-				type = "click", -- 124
-				x = 0, -- 124
-				y = buttonY4, -- 124
-				width = buttonWidth, -- 124
-				height = buttonHeight, -- 124
-				onClick = exitClick, -- 124
-				normalImage = "Image/button/button.clip|button_up", -- 124
-				pressImage = "Image/button/button.clip|button_down" -- 124
-			}, -- 124
-			React.createElement("label", {text = "退出游戏", fontName = "sarasa-mono-sc-regular", fontSize = 40, color3 = 16777215}) -- 124
-		) -- 124
-	) -- 124
+	return React.createElement( -- 60
+		"align-node", -- 60
+		{windowRoot = true, style = {justifyContent = "center", alignItems = "center"}}, -- 60
+		React.createElement( -- 60
+			"align-node", -- 60
+			{style = {width = "100%", height = "100%", justifyContent = "center", alignItems = "center"}}, -- 60
+			React.createElement(Button, { -- 60
+				type = "click", -- 60
+				x = 0, -- 60
+				y = 0, -- 60
+				width = buttonWidth, -- 60
+				height = buttonHeight, -- 60
+				onClick = newGameClick, -- 60
+				normalImage = "Image/button/button.clip|button_up", -- 60
+				pressImage = "Image/button/button.clip|button_down", -- 60
+				text = "新游戏" -- 60
+			}) -- 60
+		) -- 60
+	) -- 60
 end -- 35
-local startupnode = toNode(React.createElement(StartUp, nil)) -- 146
-if startupnode ~= nil then -- 146
-	startupnode:addTo(Director.ui) -- 147
-end -- 147
-return ____exports -- 147
+local startupnode = toNode(React.createElement(StartUp, nil)) -- 89
+if startupnode ~= nil then -- 89
+	startupnode:addTo(Director.ui) -- 90
+end -- 90
+return ____exports -- 90

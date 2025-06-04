@@ -1,6 +1,6 @@
 // @preview-file on clear nolog
 import { React, toNode, useRef } from 'DoraX';
-import {emit, Director, Label, Node, Sprite, sleep} from 'Dora';
+import {emit, Director, Label, Node, Sprite, sleep, Vec2, Size} from 'Dora';
 
 
 // 按钮状态类型
@@ -16,13 +16,13 @@ interface ButtonProps {
   /** 按钮显示的文本标签 */
   // label?: React.Element;
   /** 按钮初始位置X坐标 */
-  x?: number;
+  x?: string | number;
   /** 按钮初始位置Y坐标 */
-  y?: number;
+  y?: string | number;
   /** 按钮宽度 */
-  width?: number;
+  width?: string | number;
   /** 按钮高度 */
-  height?: number;
+  height?: string | number;
   /** 按钮被点击时的回调函数 */
   onClick?: (switched: boolean) => void;
   /** 按钮状态改变时的回调函数 */
@@ -31,23 +31,11 @@ interface ButtonProps {
   // hoverImage?: string;
   pressImage?: string;
 	children?: any | any[];
-}
-
-// 按钮标签组件(改成单独的标签类)
-export const ButtonLabel = (props: {
-  text: string;
+	text?: string;
+	fontName?: string;
   color?: number;
   fontSize?: number;
-}) => {
-  return (
-    <label
-      text={props.text} 
-      fontName="sarasa-mono-sc-regular" 
-      fontSize={props.fontSize || 24} 
-      color3={props.color || 0xffffff}
-    />
-  );
-};
+}
 
 export class Button extends React.Component<ButtonProps> {
 	private defaultProps = {
@@ -55,20 +43,23 @@ export class Button extends React.Component<ButtonProps> {
 	  // label: <ButtonLabel text="" />, // 默认按钮文本为空
 	  x: 0, // 默认 X 坐标为 0
 	  y: 0, // 默认 Y 坐标为 0
-	  width: 100, // 默认按钮宽度为 100
-	  height: 50, // 默认按钮高度为 50
-	  textColor: 0xFFFFFFFF, // 默认文本颜色为白色
-	  fontSize: 20, // 默认字体大小为 20
+	  width: "60%", // 默认按钮宽度为 100
+	  height: "60%", // 默认按钮高度为 50
 	  onClick: () => {}, // 默认点击回调为空函数
 	  onStateChange: (state: ButtonState) => {}, // 默认状态改变回调为空函数
 	  normalImage: "Image/button/button.clip|button_up",
 	  pressImage: "Image/button/button.clip|button_down",
+		text:"",
+    fontName:"sarasa-mono-sc-regular",
+    fontSize:40,
+    color : 0xffffff,
 	} as ButtonProps;
 	state : ButtonState = "normal";
 	tempchange : boolean = false;
 	switched: boolean = false;
 	spriteRef1: JSX.Ref<Sprite.Type>;
 	spriteRef2: JSX.Ref<Sprite.Type>;
+	labelRef: JSX.Ref<Label.Type>;
 	
 	// 构造函数，用于接受初始化属性
 	constructor(props: ButtonProps) {
@@ -76,6 +67,7 @@ export class Button extends React.Component<ButtonProps> {
 		this.props = { ...this.defaultProps, ...props };
 		this.spriteRef1 = useRef<Sprite.Type>();
 		this.spriteRef2 = useRef<Sprite.Type>();
+		this.labelRef = useRef<Label.Type>();
 	}
 
 	setState = (state: ButtonState) =>{
@@ -130,31 +122,52 @@ export class Button extends React.Component<ButtonProps> {
 	};
 	render() {
 		// print(`Current state: ${this.state}, Image: ${this.state === 'normal' ? this.props.normalImage : this.props.pressImage}`);
+		const { x, y, width, height, normalImage, pressImage, text, fontName, fontSize, color } = this.props;
     return (
-			<>
-				<node x={this.props.x} y={this.props.y}>
+				<align-node style={{width: width,height: height,
+				display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center'
+				}}
+				x={x} y={y}
+				onLayout={(width, height) => {
+					print(width)
+					const position = Vec2(width / 2, height / 2);
+				  const size = Size(width, height);
+
+				  const refs = [this.spriteRef1, this.spriteRef2];
+				  refs.forEach((ref) => {
+				    const current = ref.current;
+				    if (current) {
+				      current.position = position;
+				      current.size = size;
+				    }
+				  });
+					if(this.labelRef.current){
+						this.labelRef.current.position = position;
+					}
+				}}>
+				
 					<sprite ref={this.spriteRef1}
 	            file={this.props.normalImage} 
-	            width={this.props.width}
-	            height={this.props.height}
 	            visible={!this.switched}
 	        />
 	        <sprite ref={this.spriteRef2}
 	            file={this.props.pressImage} 
-	            width={this.props.width}
-	            height={this.props.height}
 	            visible={this.switched}
 	        />
-					{this.props.children}
-					<node 
-					width={this.props.width || 100}
-	        height={this.props.height || 50}
+					<label ref={this.labelRef}
+              text={text}
+              fontName={fontName || "sarasa-mono-sc-regular"}
+              fontSize={fontSize || 40}
+              color3={color}
+          />
+					<align-node style={{width: '100%',height: '100%'}}
 					onTapBegan={this.onTapBegan}
 					onTapped={this.onTapped}
 					onTapEnded={this.onTapEnded}
 					/>
-				</node>
-			</>
+				</align-node>
     );
   }
 }
