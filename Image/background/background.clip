@@ -1,0 +1,4 @@
+<A A="background.png">
+	<B A="background_start" B="0,0,400.0,200.0"/>
+	<B A="background_game" B="0,200,400.0,200.0"/>
+</A>

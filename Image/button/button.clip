@@ -1,0 +1,4 @@
+<A A="button.png">
+	<B A="button_up" B="0,0,40.0,20.0"/>
+	<B A="button_down" B="0,20,40.0,20.0"/>
+</A>
