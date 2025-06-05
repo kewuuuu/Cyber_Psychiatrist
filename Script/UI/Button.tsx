@@ -136,11 +136,11 @@ export class Button extends React.Component<ButtonProps> {
 				x={x*this.props.scale} y={y*this.props.scale}
 				onLayout={(width, height) => {
 					print("----")
-					print(width)
-					print(height)
+					print(this.props.width)
+					print(this.props.height)
 					print(this.props.scale)
-					print(width*this.props.scale)
-					print(height*this.props.scale)
+					print(this.props.width*this.props.scale)
+					print(this.props.height*this.props.scale)
 					const position = Vec2(width / 2, height / 2);
 				  const size = Size(this.props.width*this.props.scale, this.props.height*this.props.scale);
 

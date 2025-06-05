@@ -80,8 +80,9 @@ const StartUp = () => {
 				<Button
 					type="click"
 					x={0}
-					width={buttonWidth*scale}
-					height={buttonHeight*scale}
+					y={buttonY1}
+					width={buttonWidth}
+					height={buttonHeight}
 					onClick={newGameClick}
 					normalImage="Image/button/button.clip|button_up"
 					pressImage="Image/button/button.clip|button_down"

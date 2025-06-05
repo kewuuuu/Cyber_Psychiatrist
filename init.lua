@@ -62,8 +62,9 @@ local function StartUp() -- 45
 			React.createElement(Button, { -- 69
 				type = "click", -- 69
 				x = 0, -- 69
-				width = buttonWidth * scale, -- 69
-				height = buttonHeight * scale, -- 69
+				y = buttonY1, -- 69
+				width = buttonWidth, -- 69
+				height = buttonHeight, -- 69
 				onClick = newGameClick, -- 69
 				normalImage = "Image/button/button.clip|button_up", -- 69
 				pressImage = "Image/button/button.clip|button_down", -- 69
@@ -73,8 +74,8 @@ local function StartUp() -- 45
 		) -- 69
 	) -- 69
 end -- 45
-local startupnode = toNode(React.createElement(StartUp, nil)) -- 97
-if startupnode ~= nil then -- 97
-	startupnode:addTo(Director.ui) -- 98
-end -- 98
-return ____exports -- 98
+local startupnode = toNode(React.createElement(StartUp, nil)) -- 98
+if startupnode ~= nil then -- 98
+	startupnode:addTo(Director.ui) -- 99
+end -- 99
+return ____exports -- 99

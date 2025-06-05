@@ -143,11 +143,11 @@ function Button.prototype.render(self) -- 126
 			y = y * self.props.scale, -- 134
 			onLayout = function(width, height) -- 134
 				print("----")
-				print(width) -- 139
-				print(height) -- 140
+				print(self.props.width) -- 139
+				print(self.props.height) -- 140
 				print(self.props.scale) -- 141
-				print(width * self.props.scale) -- 142
-				print(height * self.props.scale) -- 143
+				print(self.props.width * self.props.scale) -- 142
+				print(self.props.height * self.props.scale) -- 143
 				local position = Vec2(width / 2, height / 2) -- 144
 				local size = Size(self.props.width * self.props.scale, self.props.height * self.props.scale) -- 145
 				local refs = {self.spriteRef1, self.spriteRef2} -- 147
