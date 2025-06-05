@@ -35,6 +35,7 @@ interface ButtonProps {
 	fontName?: string;
   color?: number;
   fontSize?: number;
+	scale: number;
 }
 
 export class Button extends React.Component<ButtonProps> {
@@ -53,6 +54,7 @@ export class Button extends React.Component<ButtonProps> {
     fontName:"sarasa-mono-sc-regular",
     fontSize:40,
     color : 0xffffff,
+		scale: 1.0,
 	} as ButtonProps;
 	state : ButtonState = "normal";
 	tempchange : boolean = false;
@@ -60,6 +62,7 @@ export class Button extends React.Component<ButtonProps> {
 	spriteRef1: JSX.Ref<Sprite.Type>;
 	spriteRef2: JSX.Ref<Sprite.Type>;
 	labelRef: JSX.Ref<Label.Type>;
+	
 	
 	// 构造函数，用于接受初始化属性
 	constructor(props: ButtonProps) {
@@ -124,16 +127,22 @@ export class Button extends React.Component<ButtonProps> {
 		// print(`Current state: ${this.state}, Image: ${this.state === 'normal' ? this.props.normalImage : this.props.pressImage}`);
 		const { x, y, width, height, normalImage, pressImage, text, fontName, fontSize, color } = this.props;
     return (
-				<align-node style={{width: width,height: height,
+				<align-node style={{width: width*this.props.scale,height: height*this.props.scale,
 				display: 'flex',
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+				border: '2px',
 				}}
-				x={x} y={y}
+				x={x*this.props.scale} y={y*this.props.scale}
 				onLayout={(width, height) => {
+					print("----")
 					print(width)
+					print(height)
+					print(this.props.scale)
+					print(width*this.props.scale)
+					print(height*this.props.scale)
 					const position = Vec2(width / 2, height / 2);
-				  const size = Size(width, height);
+				  const size = Size(this.props.width*this.props.scale, this.props.height*this.props.scale);
 
 				  const refs = [this.spriteRef1, this.spriteRef2];
 				  refs.forEach((ref) => {
@@ -146,7 +155,12 @@ export class Button extends React.Component<ButtonProps> {
 					if(this.labelRef.current){
 						this.labelRef.current.position = position;
 					}
-				}}>
+				}}
+				onMount={node => {
+					node.gslot('ScaleUpdated', (scale) => {
+						this.props.scale=scale;
+					});}}
+				>
 				
 					<sprite ref={this.spriteRef1}
 	            file={this.props.normalImage} 
