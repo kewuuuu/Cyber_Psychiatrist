@@ -1,7 +1,4 @@
-// @preview-file on clear nolog
-import { React, toNode, useRef } from 'DoraX';
-import {emit, Director, Label, Node, Sprite, sleep, Vec2, Size, AlignNode} from 'Dora';
-
+import { Node, Sprite, Label, Vec2 } from 'Dora';
 
 // 按钮状态类型
 export type ButtonState = 'normal' | 'hover' | 'pressed';
@@ -11,212 +8,117 @@ type ButtonType = 'click' | 'toggle';
 
 // 按钮组件属性
 interface ButtonProps {
-  /** 按钮类型：点击式（click）或切换式（toggle） */
-  type?: ButtonType;
-  /** 按钮显示的文本标签 */
-  // label?: React.Element;
-  /** 按钮初始位置X坐标 */
-  x?: string | number;
-  /** 按钮初始位置Y坐标 */
-  y?: string | number;
-  /** 按钮宽度 */
-  width?: string | number;
-  /** 按钮高度 */
-  height?: string | number;
-  /** 按钮被点击时的回调函数 */
-  onClick?: (switched: boolean) => void;
-  /** 按钮状态改变时的回调函数 */
-  onStateChange?: (state: ButtonState) => void;
-  normalImage?: string;
-  // hoverImage?: string;
-  pressImage?: string;
-	children?: any | any[];
+	type?: ButtonType;
+	x?: number;
+	y?: number;
+	width?: number;
+	height?: number;
+	onClick?: (switched: boolean) => void;
+	onStateChange?: (state: ButtonState) => void;
+	normalImage?: string;
+	pressImage?: string;
 	text?: string;
 	fontName?: string;
-  color?: number;
-  fontSize?: number;
-	viewState: {
-	  scale: number;
-	  NowViewWidth: number;
-	  NowViewHeight: number;
-	};
+	color?: number;
+	fontSize?: number;
 }
 
-export class Button extends React.Component<ButtonProps> {
-	private defaultProps = {
-	  type: "click", // 默认按钮类型为点击式
-	  // label: <ButtonLabel text="" />, // 默认按钮文本为空
-	  x: 0, // 默认 X 坐标为 0
-	  y: 0, // 默认 Y 坐标为 0
-	  width: "60%", // 默认按钮宽度为 100
-	  height: "60%", // 默认按钮高度为 50
-	  onClick: () => {}, // 默认点击回调为空函数
-	  onStateChange: (state: ButtonState) => {}, // 默认状态改变回调为空函数
-	  normalImage: "Image/button/button.clip|button_up",
-	  pressImage: "Image/button/button.clip|button_down",
-		text:"",
-    fontName:"sarasa-mono-sc-regular",
-    fontSize:40,
-    color : 0xffffff,
-		viewState : {
-		  scale: 1,
-		  NowViewWidth: 1000,
-		  NowViewHeight: 500
-		}
-	} as ButtonProps;
-	state : ButtonState = "normal";
-	tempchange : boolean = false;
-	switched: boolean = false;
-	spriteRef1: JSX.Ref<Sprite.Type>;
-	spriteRef2: JSX.Ref<Sprite.Type>;
-	labelRef: JSX.Ref<Label.Type>;
-	nodeRef: JSX.Ref<AlignNode.Type>;
-	
-	// 构造函数，用于接受初始化属性
-	constructor(props: ButtonProps) {
-		super(props);
-		this.props = { ...this.defaultProps, ...props };
-		this.spriteRef1 = useRef<Sprite.Type>();
-		this.spriteRef2 = useRef<Sprite.Type>();
-		this.labelRef = useRef<Label.Type>();
-		this.nodeRef = useRef<AlignNode.Type>();
+export const Button = (props: ButtonProps) => {
+	// 设置默认值
+	const {
+		type = "click",
+		x = 0,
+		y = 0,
+		width = 200,
+		height = 100,
+		onClick = () => { },
+		onStateChange = () => { },
+		normalImage = "Image/button/button.clip|button_up",
+		pressImage = "Image/button/button.clip|button_down",
+		text = "",
+		fontName = "sarasa-mono-sc-regular",
+		fontSize = 40,
+		color = 0xffffff
+	} = props;
+
+	// 创建根节点
+	const root = Node();
+	root.x = x;
+	root.y = y;
+	root.width = width;
+	root.height = height;
+	root.alignItems
+
+	// 创建正常状态精灵
+	const buttonUp = Sprite(normalImage);
+	if (buttonUp) {
+		buttonUp.position = Vec2(width / 2, height / 2);
+		buttonUp.width = width;
+		buttonUp.height = height;
+		root.addChild(buttonUp);
 	}
 
-	setState = (state: ButtonState) =>{
-		this.state = state;
-		if(state === 'pressed'){
-			if (this.spriteRef1.current) 
-				this.spriteRef1.current.visible=false;
-			if (this.spriteRef2.current) 
-				this.spriteRef2.current.visible=true;
-		}else{
-			if (this.spriteRef1.current) 
-				this.spriteRef1.current.visible=true;
-			if (this.spriteRef2.current) 
-				this.spriteRef2.current.visible=false;
-		}
+	// 创建按下状态精灵
+	const buttonDown = Sprite(pressImage);
+	if (buttonDown) {
+		buttonDown.position = Vec2(width / 2, height / 2);
+		buttonDown.width = width;
+		buttonDown.height = height;
+		buttonDown.visible = false; // 默认隐藏
+		root.addChild(buttonDown);
 	}
 
-	onTapBegan = () => {
-		// print("onTapBegan");
-		if(this.state === 'normal'){
-			this.tempchange = true;
-			this.setState('pressed');
-			this.props.onStateChange?.("pressed");
+	// 创建标签
+	const buttonLabel = Label(fontName, fontSize);
+	if (buttonLabel) {
+		buttonLabel.text = text;
+		buttonLabel.position = Vec2(width / 2, height / 2);
+		root.addChild(buttonLabel);
+	}
+
+	// 状态变量
+	let state: ButtonState = "normal";
+	let tempchange = false;
+	let switched = false;
+
+	// 更新状态函数
+	const setState = (newState: ButtonState) => {
+		state = newState;
+		if (buttonUp && buttonDown) {
+			const pressed = state === 'pressed';
+			buttonUp.visible = !pressed;
+			buttonDown.visible = pressed;
 		}
+		onStateChange(newState);
 	};
 
-	onTapEnded = () => {
-		// print("onTapEnded");
-		if(this.tempchange === true){
-			this.setState('normal');
-			this.props.onStateChange?.("normal");
-			this.tempchange = false;
+	// 事件处理
+	root.onTapBegan(touch => {
+		if (state === 'normal') {
+			tempchange = true;
+			setState('pressed');
+			return true; // 阻止事件冒泡
 		}
-	};
+		return false;
+	});
 
-	onTapped = () => {
-		// print("onTapped");
-		if (this.props.type === 'click') {
-			this.setState('normal');
-			this.props.onStateChange?.("normal");
-		}else{
-			if(this.switched === false){
-				this.switched = true;
-				this.setState('pressed');
-			}else{
-				this.switched = false;
-				this.setState('normal');
-				this.props.onStateChange?.("normal");
-			}
+	root.onTapEnded(() => {
+		if (tempchange) {
+			setState('normal');
+			tempchange = false;
 		}
-		this.props.onClick?.(this.switched);
-	};
-	render() {
-		// print(`Current state: ${this.state}, Image: ${this.state === 'normal' ? this.props.normalImage : this.props.pressImage}`);
-		
-    return (
-				<align-node style={{width: this.props.width*this.props.viewState.scale,height: this.props.height*this.props.viewState.scale,
-				display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-				border: '2px',
-				}}
-				ref={this.nodeRef}
-				x={this.props.x*this.props.viewState.scale} y={this.props.y*this.props.viewState.scale}
-				onLayout={(width, height) => {
-					print("----")
-					print(width)
-					print(height)
-					print(this.props.viewState.scale)
-					print(this.props.width*this.props.viewState.scale)
-					print(this.props.height*this.props.viewState.scale)
-					const position = Vec2(width / 2, height / 2);
-				  const size = Size(this.props.width*this.props.viewState.scale, this.props.height*this.props.viewState.scale);
-					print(position.add(Vec2(this.props.x*this.props.viewState.scale,this.props.y*this.props.viewState.scale)));
-					if(this.nodeRef.current){
-						// this.nodeRef.current.position = Vec2(0,0);
-						this.nodeRef.current.position = position.add(Vec2(this.props.x*this.props.viewState.scale,this.props.y*this.props.viewState.scale));
-					}
+	});
 
-				  const refs = [this.spriteRef1, this.spriteRef2];
-				  refs.forEach((ref) => {
-				    const current = ref.current;
-				    if (current) {
-				      current.position = position;
-				      current.size = size;
-				    }
-				  });
-					if(this.labelRef.current){
-						this.labelRef.current.position = position;
-					}
-				}}
-				onMount={node => {
-					node.gslot('ScaleUpdated', (viewState) => {
-						this.props.viewState=viewState;
-					});}}
-				>
-				
-					<sprite ref={this.spriteRef1}
-	            file={this.props.normalImage} 
-	            visible={!this.switched}
-	        />
-	        <sprite ref={this.spriteRef2}
-	            file={this.props.pressImage} 
-	            visible={this.switched}
-	        />
-					<label ref={this.labelRef}
-              text={this.props.text}
-              fontName={this.props.fontName || "sarasa-mono-sc-regular"}
-              fontSize={this.props.fontSize || 40}
-              color3={this.props.color}
-          />
-					<align-node style={{width: '100%',height: '100%'}}
-					onTapBegan={this.onTapBegan}
-					onTapped={this.onTapped}
-					onTapEnded={this.onTapEnded}
-					/>
-				</align-node>
-    );
-  }
-}
+	root.onTapped(() => {
+		if (type === 'click') {
+			setState('normal');
+		} else {
+			switched = !switched;
+			setState(switched ? 'pressed' : 'normal');
+		}
+		onClick(switched);
+		return true;
+	});
 
-//tsx调用方式
-// <Button
-//   type="toggle"
-//   x={0}
-//   y={0}
-//   width={200}
-//   height={100}
-//   onClick={handleClick}
-//   onStateChange={handleStateChange}
-//   normalImage="Image/button/button.clip|button_up"
-//   pressImage="Image/button/button.clip|button_down"
-// >
-// 	<label
-// 	text="123"
-// 	fontName="sarasa-mono-sc-regular" 
-// 	fontSize={24} 
-// 	color3={0xffffff}
-// 	/>
-// </Button>
+	return root;
+};

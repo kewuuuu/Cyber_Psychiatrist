@@ -5,83 +5,87 @@ local React = ____DoraX.React -- 1
 local toNode = ____DoraX.toNode -- 1
 local ____Dora = require("Dora") -- 2
 local Director = ____Dora.Director -- 2
-local Vec2 = ____Dora.Vec2 -- 2
+local Node = ____Dora.Node -- 2
+local Size = ____Dora.Size -- 2
+local App = ____Dora.App -- 2
 local View = ____Dora.View -- 2
-local emit = ____Dora.emit -- 2
 local tolua = ____Dora.tolua -- 2
-local ____Button = require("Script.UI.Button") -- 4
-local Button = ____Button.Button -- 4
-local DesignWidth = 200 -- 7
-local DesignHeight = 100 -- 8
-local hw = DesignWidth / 2 -- 9
-local hh = DesignHeight / 2 -- 10
-local viewState = { -- 11
-	scale = math.min(View.size.width / DesignWidth, View.size.height / DesignHeight), -- 12
-	NowViewWidth = 1000, -- 13
-	NowViewHeight = 500 -- 14
-} -- 14
-local function updateViewSize() -- 21
-	local camera = tolua.cast(Director.currentCamera, "Camera2D") -- 22
-	if camera then -- 22
-		local scaleX = View.size.width / DesignWidth -- 25
-		local scaleY = View.size.height / DesignHeight -- 26
-		viewState.scale = math.min(scaleX, scaleY) -- 27
-		viewState.NowViewWidth = DesignWidth * viewState.scale -- 28
-		viewState.NowViewHeight = DesignHeight * viewState.scale -- 29
-		camera.zoom = viewState.scale -- 30
-		camera.position = Vec2(hw * viewState.scale, hh * viewState.scale) -- 31
-	end -- 31
-	emit("ScaleUpdated", viewState) -- 37
-end -- 21
-updateViewSize() -- 39
-Director.entry:onAppChange(function(settingName) -- 40
-	if settingName == "Size" then -- 40
-		updateViewSize() -- 42
+local ____Button = require("Script.UI.Button") -- 3
+local Button = ____Button.Button -- 3
+local designSize = Size(1280, 720) -- 5
+local winsize = Size(1600, 900) -- 6
+local function updateViewSize() -- 9
+	local camera = tolua.cast(Director.currentCamera, "Camera2D") -- 10
+	if camera then -- 10
+		camera.zoom = View.size.height / designSize.height -- 12
+	end -- 12
+end -- 9
+local function adjustWinSize() -- 17
+	App.winSize = winsize -- 18
+	print("Visual size: " .. tostring(App.visualSize)) -- 19
+end -- 17
+local function StartUp() -- 23
+	local buttonWidth = 200 -- 24
+	local buttonHeight = 100 -- 25
+	local buttonx = 0 -- 26
+	local buttony = {designSize.height / 5 * 4 - designSize.height / 2, designSize.height / 5 * 3 - designSize.height / 2, designSize.height / 5 * 2 - designSize.height / 2, designSize.height / 5 - designSize.height / 2} -- 27
+	local function newGameClick(switched) -- 34
+		print("新游戏点击, switched: " .. (switched and "on" or "off")) -- 35
+	end -- 34
+	local function continueGameClick(switched) -- 38
+		print("继续游戏点击, switched: " .. (switched and "on" or "off")) -- 39
+	end -- 38
+	local function loadSaveClick(switched) -- 42
+		print("加载游戏点击, switched: " .. (switched and "on" or "off")) -- 43
 	end -- 42
-end) -- 40
-local function StartUp() -- 47
-	local function newGameClick(switched) -- 48
-		print("Button clicked, switched: " .. (switched and "on" or "off")) -- 49
-	end -- 48
-	local function continueGameClick(switched) -- 51
-		print("Button clicked, switched: " .. (switched and "on" or "off")) -- 52
-	end -- 51
-	local function loadSaveClick(switched) -- 54
-		print("Button clicked, switched: " .. (switched and "on" or "off")) -- 55
-	end -- 54
-	local function exitClick(switched) -- 57
-		print("Button clicked, switched: " .. (switched and "on" or "off")) -- 58
-	end -- 57
-	local buttonWidth = 30 -- 62
-	local buttonHeight = 15 -- 63
-	local Button_interval = 10 -- 64
-	local buttonY1 = 5 + Button_interval * 3 + buttonHeight * 7 / 2 -- 70
-	local buttonY2 = 5 + Button_interval * 2 + buttonHeight * 5 / 2 -- 71
-	local buttonY3 = 5 + Button_interval + buttonHeight * 3 / 2 -- 72
-	local buttonY4 = 5 + buttonHeight / 2 -- 73
-	return React.createElement( -- 75
-		"align-node", -- 75
-		{windowRoot = true, style = {justifyContent = "center", alignItems = "center"}}, -- 75
-		React.createElement( -- 75
-			"align-node", -- 75
-			{style = {width = "100%", height = "100%", justifyContent = "center", alignItems = "center"}}, -- 75
-			React.createElement(Button, { -- 75
-				type = "click", -- 75
-				x = 50, -- 75
-				y = buttonY1, -- 75
-				width = buttonWidth, -- 75
-				height = buttonHeight, -- 75
-				onClick = newGameClick, -- 75
-				normalImage = "Image/button/button.clip|button_up", -- 75
-				pressImage = "Image/button/button.clip|button_down", -- 75
-				text = "新游戏", -- 75
-				viewState = viewState -- 75
-			}) -- 75
-		) -- 75
-	) -- 75
-end -- 47
-local startupnode = toNode(React.createElement(StartUp, nil)) -- 105
-if startupnode ~= nil then -- 105
-	startupnode:addTo(Director.ui) -- 106
-end -- 106
-return ____exports -- 106
+	local function exitClick(switched) -- 46
+		print("退出游戏点击, switched: " .. (switched and "on" or "off")) -- 47
+	end -- 46
+	local root = Node() -- 50
+	local bt1 = toNode(React.createElement(Button, { -- 51
+		type = "click", -- 51
+		x = buttonx, -- 51
+		y = buttony[1], -- 51
+		width = buttonWidth, -- 51
+		height = buttonHeight, -- 51
+		onClick = newGameClick, -- 51
+		text = "新游戏" -- 51
+	})) -- 51
+	local bt2 = toNode(React.createElement(Button, { -- 60
+		type = "click", -- 60
+		x = buttonx, -- 60
+		y = buttony[2], -- 60
+		width = buttonWidth, -- 60
+		height = buttonHeight, -- 60
+		onClick = continueGameClick, -- 60
+		text = "继续游戏" -- 60
+	})) -- 60
+	local bt3 = toNode(React.createElement(Button, { -- 69
+		type = "click", -- 69
+		x = buttonx, -- 69
+		y = buttony[3], -- 69
+		width = buttonWidth, -- 69
+		height = buttonHeight, -- 69
+		onClick = loadSaveClick, -- 69
+		text = "读取存档" -- 69
+	})) -- 69
+	local bt4 = toNode(React.createElement(Button, { -- 78
+		type = "click", -- 78
+		x = buttonx, -- 78
+		y = buttony[4], -- 78
+		width = buttonWidth, -- 78
+		height = buttonHeight, -- 78
+		onClick = exitClick, -- 78
+		text = "退出游戏" -- 78
+	})) -- 78
+	return root -- 87
+end -- 23
+updateViewSize() -- 94
+adjustWinSize() -- 95
+Director.entry:onAppChange(function(settingName) -- 96
+	if settingName == "Size" then -- 96
+		updateViewSize() -- 98
+	end -- 98
+end) -- 96
+StartUp() -- 103
+return ____exports -- 103
