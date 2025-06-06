@@ -1,6 +1,6 @@
 // @preview-file on clear nolog
 import { React, toNode, useRef } from 'DoraX';
-import {emit, Director, Label, Node, Sprite, sleep, Vec2, Size} from 'Dora';
+import {emit, Director, Label, Node, Sprite, sleep, Vec2, Size, AlignNode} from 'Dora';
 
 
 // 按钮状态类型
@@ -35,7 +35,11 @@ interface ButtonProps {
 	fontName?: string;
   color?: number;
   fontSize?: number;
-	scale: number;
+	viewState: {
+	  scale: number;
+	  NowViewWidth: number;
+	  NowViewHeight: number;
+	};
 }
 
 export class Button extends React.Component<ButtonProps> {
@@ -54,7 +58,11 @@ export class Button extends React.Component<ButtonProps> {
     fontName:"sarasa-mono-sc-regular",
     fontSize:40,
     color : 0xffffff,
-		scale: 1.0,
+		viewState : {
+		  scale: 1,
+		  NowViewWidth: 1000,
+		  NowViewHeight: 500
+		}
 	} as ButtonProps;
 	state : ButtonState = "normal";
 	tempchange : boolean = false;
@@ -62,7 +70,7 @@ export class Button extends React.Component<ButtonProps> {
 	spriteRef1: JSX.Ref<Sprite.Type>;
 	spriteRef2: JSX.Ref<Sprite.Type>;
 	labelRef: JSX.Ref<Label.Type>;
-	
+	nodeRef: JSX.Ref<AlignNode.Type>;
 	
 	// 构造函数，用于接受初始化属性
 	constructor(props: ButtonProps) {
@@ -71,6 +79,7 @@ export class Button extends React.Component<ButtonProps> {
 		this.spriteRef1 = useRef<Sprite.Type>();
 		this.spriteRef2 = useRef<Sprite.Type>();
 		this.labelRef = useRef<Label.Type>();
+		this.nodeRef = useRef<AlignNode.Type>();
 	}
 
 	setState = (state: ButtonState) =>{
@@ -125,24 +134,30 @@ export class Button extends React.Component<ButtonProps> {
 	};
 	render() {
 		// print(`Current state: ${this.state}, Image: ${this.state === 'normal' ? this.props.normalImage : this.props.pressImage}`);
-		const { x, y, width, height, normalImage, pressImage, text, fontName, fontSize, color } = this.props;
+		
     return (
-				<align-node style={{width: width*this.props.scale,height: height*this.props.scale,
+				<align-node style={{width: this.props.width*this.props.viewState.scale,height: this.props.height*this.props.viewState.scale,
 				display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
 				border: '2px',
 				}}
-				x={x*this.props.scale} y={y*this.props.scale}
+				ref={this.nodeRef}
+				x={this.props.x*this.props.viewState.scale} y={this.props.y*this.props.viewState.scale}
 				onLayout={(width, height) => {
 					print("----")
-					print(this.props.width)
-					print(this.props.height)
-					print(this.props.scale)
-					print(this.props.width*this.props.scale)
-					print(this.props.height*this.props.scale)
+					print(width)
+					print(height)
+					print(this.props.viewState.scale)
+					print(this.props.width*this.props.viewState.scale)
+					print(this.props.height*this.props.viewState.scale)
 					const position = Vec2(width / 2, height / 2);
-				  const size = Size(this.props.width*this.props.scale, this.props.height*this.props.scale);
+				  const size = Size(this.props.width*this.props.viewState.scale, this.props.height*this.props.viewState.scale);
+					print(position.add(Vec2(this.props.x*this.props.viewState.scale,this.props.y*this.props.viewState.scale)));
+					if(this.nodeRef.current){
+						// this.nodeRef.current.position = Vec2(0,0);
+						this.nodeRef.current.position = position.add(Vec2(this.props.x*this.props.viewState.scale,this.props.y*this.props.viewState.scale));
+					}
 
 				  const refs = [this.spriteRef1, this.spriteRef2];
 				  refs.forEach((ref) => {
@@ -157,8 +172,8 @@ export class Button extends React.Component<ButtonProps> {
 					}
 				}}
 				onMount={node => {
-					node.gslot('ScaleUpdated', (scale) => {
-						this.props.scale=scale;
+					node.gslot('ScaleUpdated', (viewState) => {
+						this.props.viewState=viewState;
 					});}}
 				>
 				
@@ -171,10 +186,10 @@ export class Button extends React.Component<ButtonProps> {
 	            visible={this.switched}
 	        />
 					<label ref={this.labelRef}
-              text={text}
-              fontName={fontName || "sarasa-mono-sc-regular"}
-              fontSize={fontSize || 40}
-              color3={color}
+              text={this.props.text}
+              fontName={this.props.fontName || "sarasa-mono-sc-regular"}
+              fontSize={this.props.fontSize || 40}
+              color3={this.props.color}
           />
 					<align-node style={{width: '100%',height: '100%'}}
 					onTapBegan={this.onTapBegan}
