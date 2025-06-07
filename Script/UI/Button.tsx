@@ -1,4 +1,4 @@
-import { Node, Sprite, Label, Vec2 } from 'Dora';
+import { Node, Sprite, Label, Vec2, TextAlign } from 'Dora';
 
 // 按钮状态类型
 export type ButtonState = 'normal' | 'hover' | 'pressed';
@@ -13,14 +13,17 @@ interface ButtonProps {
 	y?: number;
 	width?: number;
 	height?: number;
-	onClick?: (switched: boolean) => void;
-	onStateChange?: (state: ButtonState) => void;
+	onClick?: (this:void, switched: boolean,tag: string|null) => void;
+	onStateChange?: (this:void, state: ButtonState) => void;
 	normalImage?: string;
 	pressImage?: string;
 	text?: string;
 	fontName?: string;
 	color?: number;
 	fontSize?: number;
+	textWidth?: number;
+	alignment?: TextAlign;
+	tag?: string|null;
 }
 
 export const Button = (props: ButtonProps) => {
@@ -38,7 +41,10 @@ export const Button = (props: ButtonProps) => {
 		text = "",
 		fontName = "sarasa-mono-sc-regular",
 		fontSize = 40,
-		color = 0xffffff
+		color = 0xffffff,
+		textWidth = Label.AutomaticWidth,
+		alignment = TextAlign.Center,
+		tag = null,
 	} = props;
 
 	// 创建根节点
@@ -73,6 +79,8 @@ export const Button = (props: ButtonProps) => {
 	if (buttonLabel) {
 		buttonLabel.text = text;
 		buttonLabel.position = Vec2(width / 2, height / 2);
+		buttonLabel.textWidth = textWidth;
+		buttonLabel.alignment = alignment;
 		root.addChild(buttonLabel);
 	}
 
@@ -116,7 +124,9 @@ export const Button = (props: ButtonProps) => {
 			switched = !switched;
 			setState(switched ? 'pressed' : 'normal');
 		}
-		onClick(switched);
+		print("switched:",switched);
+		print("tag:",tag);
+		onClick(switched,tag);
 		return true;
 	});
 
