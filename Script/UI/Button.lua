@@ -6,9 +6,9 @@ local Sprite = ____Dora.Sprite -- 1
 local Label = ____Dora.Label -- 1
 local Vec2 = ____Dora.Vec2 -- 1
 ____exports.Button = function(props) -- 29
-	local ____props_0 = props -- 48
-	local ____type = ____props_0.type -- 48
-	if ____type == nil then -- 48
+	local ____props_0 = props -- 49
+	local ____type = ____props_0.type -- 49
+	if ____type == nil then -- 49
 		____type = "click" -- 32
 	end -- 32
 	local x = ____props_0.x -- 32
@@ -73,73 +73,96 @@ ____exports.Button = function(props) -- 29
 	if tag == nil then -- 46
 		tag = nil -- 47
 	end -- 47
-	local root = Node() -- 51
-	root.x = x -- 52
-	root.y = y -- 53
-	root.width = width -- 54
-	root.height = height -- 55
-	local ____ = root.alignItems -- 55
-	local buttonUp = Sprite(normalImage) -- 59
-	if buttonUp then -- 59
-		buttonUp.position = Vec2(width / 2, height / 2) -- 61
-		buttonUp.width = width -- 62
-		buttonUp.height = height -- 63
-		root:addChild(buttonUp) -- 64
-	end -- 64
-	local buttonDown = Sprite(pressImage) -- 68
-	if buttonDown then -- 68
-		buttonDown.position = Vec2(width / 2, height / 2) -- 70
-		buttonDown.width = width -- 71
-		buttonDown.height = height -- 72
-		buttonDown.visible = false -- 73
-		root:addChild(buttonDown) -- 74
-	end -- 74
-	local buttonLabel = Label(fontName, fontSize) -- 78
-	if buttonLabel then -- 78
-		buttonLabel.text = text -- 80
-		buttonLabel.position = Vec2(width / 2, height / 2) -- 81
-		buttonLabel.textWidth = textWidth -- 82
-		buttonLabel.alignment = alignment -- 83
-		root:addChild(buttonLabel) -- 84
-	end -- 84
-	local state = "normal" -- 88
-	local tempchange = false -- 89
-	local switched = false -- 90
-	local function setState(newState) -- 93
-		state = newState -- 94
-		if buttonUp and buttonDown then -- 94
-			local pressed = state == "pressed" -- 96
-			buttonUp.visible = not pressed -- 97
-			buttonDown.visible = pressed -- 98
-		end -- 98
-		onStateChange(newState) -- 100
-	end -- 93
-	root:onTapBegan(function(touch) -- 104
-		if state == "normal" then -- 104
-			tempchange = true -- 106
-			setState("pressed") -- 107
-			return true -- 108
-		end -- 108
-		return false -- 110
-	end) -- 104
-	root:onTapEnded(function() -- 113
-		if tempchange then -- 113
-			setState("normal") -- 115
-			tempchange = false -- 116
-		end -- 116
-	end) -- 113
-	root:onTapped(function() -- 120
-		if ____type == "click" then -- 120
-			setState("normal") -- 122
-		else -- 122
-			switched = not switched -- 124
-			setState(switched and "pressed" or "normal") -- 125
-		end -- 125
-		print("switched:", switched) -- 127
-		print("tag:", tag) -- 128
-		onClick(switched, tag) -- 129
-		return true -- 130
-	end) -- 120
-	return root -- 133
+	local root = Node() -- 52
+	root.x = x -- 53
+	root.y = y -- 54
+	local buttonUp = Sprite(normalImage) -- 57
+	if buttonUp then -- 57
+		buttonUp.position = Vec2(0, 0) -- 59
+		buttonUp.width = width -- 60
+		buttonUp.height = height -- 61
+		root:addChild(buttonUp) -- 62
+	end -- 62
+	local buttonDown = Sprite(pressImage) -- 66
+	if buttonDown then -- 66
+		buttonDown.position = Vec2(0, 0) -- 68
+		buttonDown.width = width -- 69
+		buttonDown.height = height -- 70
+		buttonDown.visible = false -- 71
+		root:addChild(buttonDown) -- 72
+	end -- 72
+	local buttonLabel = Label(fontName, fontSize) -- 76
+	if buttonLabel then -- 76
+		buttonLabel.text = text -- 78
+		buttonLabel.position = Vec2(0, 0) -- 79
+		buttonLabel.textWidth = textWidth -- 80
+		buttonLabel.alignment = alignment -- 81
+		root:addChild(buttonLabel) -- 82
+	end -- 82
+	local clickNode = Node() -- 85
+	clickNode.width = width -- 86
+	clickNode.height = height -- 87
+	root:addChild(clickNode) -- 88
+	local state = "normal" -- 91
+	local tempchange = false -- 92
+	local switched = false -- 93
+	local visible = true -- 94
+	local function setState(newState) -- 97
+		state = newState -- 98
+		if buttonUp and buttonDown then -- 98
+			local pressed = state == "pressed" -- 100
+			buttonUp.visible = not pressed -- 101
+			buttonDown.visible = pressed -- 102
+		end -- 102
+		onStateChange(newState) -- 104
+	end -- 97
+	clickNode:onTapBegan(function(touch) -- 108
+		if state == "normal" then -- 108
+			tempchange = true -- 110
+			setState("pressed") -- 111
+			return true -- 112
+		end -- 112
+		return false -- 114
+	end) -- 108
+	clickNode:onTapEnded(function() -- 117
+		if tempchange then -- 117
+			setState("normal") -- 119
+			tempchange = false -- 120
+		end -- 120
+	end) -- 117
+	clickNode:onTapped(function() -- 124
+		if ____type == "click" then -- 124
+			setState("normal") -- 126
+		else -- 126
+			switched = not switched -- 128
+			setState(switched and "pressed" or "normal") -- 129
+		end -- 129
+		onClick(switched, tag) -- 131
+		return true -- 132
+	end) -- 124
+	local function setVisible(tempvisible) -- 135
+		visible = tempvisible -- 136
+		if buttonDown and buttonUp and buttonLabel then -- 136
+			if visible then -- 136
+				local pressed = state == "pressed" -- 139
+				buttonUp.visible = not pressed -- 140
+				buttonDown.visible = pressed -- 141
+				buttonLabel.visible = true -- 142
+				root:addChild(clickNode) -- 143
+			else -- 143
+				buttonUp.visible = false -- 145
+				buttonDown.visible = false -- 146
+				buttonLabel.visible = false -- 147
+				clickNode:removeFromParent(false) -- 148
+			end -- 148
+		end -- 148
+	end -- 135
+	local function setText(temptext) -- 152
+		if buttonLabel then -- 152
+			print(temptext) -- 154
+			buttonLabel.text = temptext -- 155
+		end -- 155
+	end -- 152
+	return {root = root, setText = setText} -- 159
 end -- 29
 return ____exports -- 29

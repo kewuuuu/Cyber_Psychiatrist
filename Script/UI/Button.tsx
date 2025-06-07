@@ -45,20 +45,18 @@ export const Button = (props: ButtonProps) => {
 		textWidth = Label.AutomaticWidth,
 		alignment = TextAlign.Center,
 		tag = null,
+		
 	} = props;
 
 	// 创建根节点
 	const root = Node();
 	root.x = x;
 	root.y = y;
-	root.width = width;
-	root.height = height;
-	root.alignItems
 
 	// 创建正常状态精灵
 	const buttonUp = Sprite(normalImage);
 	if (buttonUp) {
-		buttonUp.position = Vec2(width / 2, height / 2);
+		buttonUp.position = Vec2(0, 0);
 		buttonUp.width = width;
 		buttonUp.height = height;
 		root.addChild(buttonUp);
@@ -67,7 +65,7 @@ export const Button = (props: ButtonProps) => {
 	// 创建按下状态精灵
 	const buttonDown = Sprite(pressImage);
 	if (buttonDown) {
-		buttonDown.position = Vec2(width / 2, height / 2);
+		buttonDown.position = Vec2(0, 0);
 		buttonDown.width = width;
 		buttonDown.height = height;
 		buttonDown.visible = false; // 默认隐藏
@@ -78,16 +76,22 @@ export const Button = (props: ButtonProps) => {
 	const buttonLabel = Label(fontName, fontSize);
 	if (buttonLabel) {
 		buttonLabel.text = text;
-		buttonLabel.position = Vec2(width / 2, height / 2);
+		buttonLabel.position = Vec2(0, 0);
 		buttonLabel.textWidth = textWidth;
 		buttonLabel.alignment = alignment;
 		root.addChild(buttonLabel);
 	}
+	//触发组件
+	const clickNode = Node();
+	clickNode.width = width;
+	clickNode.height = height;
+	root.addChild(clickNode);
 
 	// 状态变量
 	let state: ButtonState = "normal";
 	let tempchange = false;
 	let switched = false;
+	let visible = true;
 
 	// 更新状态函数
 	const setState = (newState: ButtonState) => {
@@ -99,9 +103,9 @@ export const Button = (props: ButtonProps) => {
 		}
 		onStateChange(newState);
 	};
-
+	
 	// 事件处理
-	root.onTapBegan(touch => {
+	clickNode.onTapBegan(touch => {
 		if (state === 'normal') {
 			tempchange = true;
 			setState('pressed');
@@ -110,25 +114,47 @@ export const Button = (props: ButtonProps) => {
 		return false;
 	});
 
-	root.onTapEnded(() => {
+	clickNode.onTapEnded(() => {
 		if (tempchange) {
 			setState('normal');
 			tempchange = false;
 		}
 	});
 
-	root.onTapped(() => {
+	clickNode.onTapped(() => {
 		if (type === 'click') {
 			setState('normal');
 		} else {
 			switched = !switched;
 			setState(switched ? 'pressed' : 'normal');
 		}
-		print("switched:",switched);
-		print("tag:",tag);
 		onClick(switched,tag);
 		return true;
 	});
-
-	return root;
+	//毫无用处
+	const setVisible=(tempvisible:boolean)=>{
+		visible = tempvisible;
+		if(buttonDown && buttonUp && buttonLabel){
+			if(visible){
+				const pressed = state === 'pressed';
+				buttonUp.visible = !pressed;
+				buttonDown.visible = pressed;
+				buttonLabel.visible = true;
+				root.addChild(clickNode);
+			}else{
+				buttonUp.visible = false;
+				buttonDown.visible = false;
+				buttonLabel.visible = false;
+				clickNode.removeFromParent(false);
+			}
+		}
+	}
+	const setText=(temptext:string)=>{
+		if(buttonLabel){
+			print(temptext);
+			buttonLabel.text=temptext;
+		}
+	}
+	// return {root:root,setVisible:setVisible};
+	return {root,setText};
 };
