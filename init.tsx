@@ -3,6 +3,7 @@ import { Director, Node, Sprite, Size, App, Vec2, View, tolua, TypeName, Camera2
 import { Button } from 'Script/UI/Button';
 import { DB, thread, SQL, Audio } from "Dora";
 import { SaveManager, SaveSummary, SaveDetail } from "Script/SaveManager";
+import {ScrollBar, AlignMode} from "Script/UI/ScrollBar"
 
 const designSize = Size(1280, 720);
 const winsize = Size(1600, 900);
@@ -67,7 +68,6 @@ const StartUp = () => {
 
 	// 按钮1
 	const { root: bt1 } = Button({
-		type: "click",
 		x: buttonx,
 		y: buttony[0],
 		width: buttonWidth,
@@ -78,7 +78,6 @@ const StartUp = () => {
 
 	//按钮2
 	const { root: bt2 } = Button({
-		type: "click",
 		x: buttonx,
 		y: buttony[1],
 		width: buttonWidth,
@@ -89,7 +88,6 @@ const StartUp = () => {
 
 	// 按钮3
 	const { root: bt3 } = Button({
-		type: "click",
 		x: buttonx,
 		y: buttony[2],
 		width: buttonWidth,
@@ -100,7 +98,6 @@ const StartUp = () => {
 
 	// 按钮4
 	const { root: bt4 } = Button({
-		type: "click",
 		x: buttonx,
 		y: buttony[3],
 		width: buttonWidth,
@@ -186,7 +183,6 @@ const SavePage = () => {
 	}[] = [];
 	for (let i = 0; i < file_num; i++) {
 		const { root: bt, setText: st } = Button({
-			type: "click",
 			x: label_x[i],
 			y: 0,
 			width: file_label_size.width,
@@ -204,7 +200,6 @@ const SavePage = () => {
 	const deleteButton = [];
 	for (let i = 0; i < file_num; i++) {
 		const { root: bt } = Button({
-			type: "click",
 			x: label_x[i],
 			y: -file_label_size.height / 2 - delete_button_size.height / 2 - 10,
 			width: delete_button_size.width,
@@ -232,7 +227,15 @@ const SavePage = () => {
 	return root;
 }
 
-
+const testPage = () => {
+	const root = ScrollBar({
+		width: 500,
+		height: 500,
+		alignmode: AlignMode.Vertical,
+		totalwidth: 5000,
+	});
+	return root;
+}
 
 // 初始化
 updateViewSize();
@@ -245,7 +248,8 @@ Director.entry.onAppChange(settingName => {
 
 // 启动场景
 // StartUp();
-SavePage();
+// SavePage();
+testPage();
 // const background = Sprite("Image/background/background.png");
 // if(background){
 // 	background.size = Size(1149,720);

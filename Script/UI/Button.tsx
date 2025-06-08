@@ -1,13 +1,20 @@
-import { Node, Sprite, Label, Vec2, TextAlign, App, thread, sleep } from 'Dora';
+import { Node, Sprite, Label, Vec2, TextAlign, App, thread, sleep, Color } from 'Dora';
 
 // 按钮状态类型
-export type ButtonState = 'normal' | 'hover' | 'pressed';
+export enum ButtonState {
+	Normal = 'normal',
+	Hover = 'hover',
+	Pressed = 'pressed'
+}
 
 // 按钮类型
-type ButtonType = 'click' | 'toggle';
+export enum ButtonType {
+    Click = 'click',
+    Toggle = 'toggle'
+}
 
 // 按钮组件属性
-interface ButtonProps {
+export interface ButtonProps {
 	type?: ButtonType;
 	x?: number;
 	y?: number;
@@ -20,17 +27,17 @@ interface ButtonProps {
 	pressImage?: string;
 	text?: string;
 	fontName?: string;
-	color?: number;
+	color?: Color.Type;
 	fontSize?: number;
 	textWidth?: number;
 	alignment?: TextAlign;
-	tag?: string | null;
+	tag?: string;
 }
 
 export const Button = (props: ButtonProps) => {
 	// 设置默认值
 	const {
-		type = "click",
+		type = ButtonType.Click,
 		x = 0,
 		y = 0,
 		width = 200,
@@ -43,7 +50,7 @@ export const Button = (props: ButtonProps) => {
 		text = "",
 		fontName = "sarasa-mono-sc-regular",
 		fontSize = 40,
-		color = 0xffffff,
+		color = Color(0xffffff),
 		textWidth = Label.AutomaticWidth,
 		alignment = TextAlign.Center,
 		tag = null,
@@ -81,6 +88,7 @@ export const Button = (props: ButtonProps) => {
 		buttonLabel.position = Vec2(0, 0);
 		buttonLabel.textWidth = textWidth;
 		buttonLabel.alignment = alignment;
+		buttonLabel.color = color;
 		root.addChild(buttonLabel);
 	}
 	//触发组件
@@ -90,7 +98,7 @@ export const Button = (props: ButtonProps) => {
 	root.addChild(clickNode);
 
 	// 状态变量
-	let state: ButtonState = "normal";
+	let state = ButtonState.Normal;
 	let tempchange = false;
 	let switched = false;
 	let visible = true;
@@ -100,7 +108,7 @@ export const Button = (props: ButtonProps) => {
 	const setState = (newState: ButtonState) => {
 		state = newState;
 		if (buttonUp && buttonDown) {
-			const pressed = state === 'pressed';
+			const pressed = state === ButtonState.Pressed;
 			buttonUp.visible = !pressed;
 			buttonDown.visible = pressed;
 		}
@@ -109,9 +117,9 @@ export const Button = (props: ButtonProps) => {
 
 	// 事件处理
 	clickNode.onTapBegan(touch => {
-		if (state === 'normal') {
+		if (state === ButtonState.Normal) {
 			tempchange = true;
-			setState('pressed');
+			setState(ButtonState.Pressed);
 			return true; // 阻止事件冒泡
 		}
 		return false;
@@ -119,14 +127,14 @@ export const Button = (props: ButtonProps) => {
 
 	clickNode.onTapEnded(() => {
 		if (tempchange) {
-			setState('normal');
+			setState(ButtonState.Normal);
 			tempchange = false;
 		}
 	});
 
 	clickNode.onTapped(() => {
-		if (type === 'click') {
-			setState('normal');
+		if (type === ButtonType.Click) {
+			setState(ButtonState.Normal);
 			thread(() => {
 				sleep(0.3);
 				if (doubleClick) {
@@ -144,7 +152,7 @@ export const Button = (props: ButtonProps) => {
 			}
 		} else {
 			switched = !switched;
-			setState(switched ? 'pressed' : 'normal');
+			setState(switched ? ButtonState.Pressed : ButtonState.Normal);
 			onClick(switched, tag);
 		}
 		// print(App.runningTime);
@@ -155,7 +163,7 @@ export const Button = (props: ButtonProps) => {
 		visible = tempvisible;
 		if (buttonDown && buttonUp && buttonLabel) {
 			if (visible) {
-				const pressed = state === 'pressed';
+				const pressed = state === ButtonState.Pressed;
 				buttonUp.visible = !pressed;
 				buttonDown.visible = pressed;
 				buttonLabel.visible = true;
