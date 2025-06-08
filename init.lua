@@ -17,6 +17,8 @@ local Label = ____Dora.Label -- 2
 local Color = ____Dora.Color -- 2
 local ____Button = require("Script.UI.Button") -- 3
 local Button = ____Button.Button -- 3
+local ____Dora = require("Dora") -- 4
+local Audio = ____Dora.Audio -- 4
 local ____SaveManager = require("Script.SaveManager") -- 5
 local SaveManager = ____SaveManager.SaveManager -- 5
 local designSize = Size(1280, 720) -- 7
@@ -32,197 +34,199 @@ local function adjustWinSize() -- 20
 	App.winSize = winsize -- 21
 	print("Visual size: " .. tostring(App.visualSize)) -- 22
 end -- 20
-local function StartUp() -- 26
-	local buttonWidth = 200 -- 27
-	local buttonHeight = 100 -- 28
-	local buttonx = 0 -- 29
-	local buttony = {designSize.height / 5 * 4 - designSize.height / 2, designSize.height / 5 * 3 - designSize.height / 2, designSize.height / 5 * 2 - designSize.height / 2, designSize.height / 5 - designSize.height / 2} -- 30
-	local function newGameClick(switched, tag) -- 37
-		print("新游戏点击, switched: " .. (switched and "on" or "off")) -- 38
-	end -- 37
-	local function continueGameClick(switched, tag) -- 41
-		print("继续游戏点击, switched: " .. (switched and "on" or "off")) -- 42
-	end -- 41
-	local function loadSaveClick(switched, tag) -- 45
-		print("加载游戏点击, switched: " .. (switched and "on" or "off")) -- 46
+local resources = {textures = {}, models = {}, sounds = {"Audio/《蝉鸣间的电子幽梦》欢快的桂花冰淇淋.mp3"}} -- 26
+Audio:playStream(resources.sounds[1], true) -- 31
+local function StartUp() -- 34
+	local buttonWidth = 200 -- 35
+	local buttonHeight = 100 -- 36
+	local buttonx = 0 -- 37
+	local buttony = {designSize.height / 5 * 4 - designSize.height / 2, designSize.height / 5 * 3 - designSize.height / 2, designSize.height / 5 * 2 - designSize.height / 2, designSize.height / 5 - designSize.height / 2} -- 38
+	local function newGameClick(switched, tag) -- 45
+		print("新游戏点击, switched: " .. (switched and "on" or "off")) -- 46
 	end -- 45
-	local function exitClick(switched, tag) -- 49
-		print("退出游戏点击, switched: " .. (switched and "on" or "off")) -- 50
-		App:shutdown() -- 51
+	local function continueGameClick(switched, tag) -- 49
+		print("继续游戏点击, switched: " .. (switched and "on" or "off")) -- 50
 	end -- 49
-	local root = Node() -- 53
-	local background = Sprite("Image/background/background.png") -- 54
-	if background then -- 54
-		background.size = designSize -- 56
-		root:addChild(background) -- 57
+	local function loadSaveClick(switched, tag) -- 53
+		print("加载游戏点击, switched: " .. (switched and "on" or "off")) -- 54
+	end -- 53
+	local function exitClick(switched, tag) -- 57
+		print("退出游戏点击, switched: " .. (switched and "on" or "off")) -- 58
+		App:shutdown() -- 59
 	end -- 57
-	local ____Button_result_0 = Button({ -- 61
-		type = "click", -- 62
-		x = buttonx, -- 63
-		y = buttony[1], -- 64
-		width = buttonWidth, -- 65
-		height = buttonHeight, -- 66
-		onClick = continueGameClick, -- 67
-		text = "继续游戏" -- 68
-	}) -- 68
-	local bt1 = ____Button_result_0.root -- 68
-	local ____Button_result_1 = Button({ -- 72
-		type = "click", -- 73
-		x = buttonx, -- 74
-		y = buttony[2], -- 75
-		width = buttonWidth, -- 76
-		height = buttonHeight, -- 77
-		onClick = newGameClick, -- 78
-		text = "新游戏" -- 79
-	}) -- 79
-	local bt2 = ____Button_result_1.root -- 79
-	local ____Button_result_2 = Button({ -- 83
-		type = "click", -- 84
-		x = buttonx, -- 85
-		y = buttony[3], -- 86
-		width = buttonWidth, -- 87
-		height = buttonHeight, -- 88
-		onClick = loadSaveClick, -- 89
-		text = "读取存档" -- 90
-	}) -- 90
-	local bt3 = ____Button_result_2.root -- 90
-	local ____Button_result_3 = Button({ -- 94
-		type = "click", -- 95
-		x = buttonx, -- 96
-		y = buttony[4], -- 97
-		width = buttonWidth, -- 98
-		height = buttonHeight, -- 99
-		onClick = exitClick, -- 100
-		text = "退出游戏" -- 101
-	}) -- 101
-	local bt4 = ____Button_result_3.root -- 101
-	root:addChild(bt1) -- 103
-	root:addChild(bt2) -- 104
-	root:addChild(bt3) -- 105
-	root:addChild(bt4) -- 106
-	return root -- 108
-end -- 26
-local function SavePage() -- 111
-	local saveSlots -- 111
-	local file_num = 4 -- 112
-	local file_label_size = {width = 250, height = 400} -- 113
-	local delete_button_size = {width = 20, height = 20} -- 114
-	local file_interval = 50 -- 115
-	local totalWidth = file_num * file_label_size.width + (file_num - 1) * file_interval -- 116
-	local label_x = {} -- 118
-	do -- 118
-		local i = 0 -- 119
-		while i < file_num do -- 119
-			label_x[#label_x + 1] = -totalWidth / 2 + file_label_size.width / 2 + i * (file_label_size.width + file_interval) -- 120
-			i = i + 1 -- 119
-		end -- 119
-	end -- 119
-	local saveManager = __TS__New(SaveManager) -- 123
-	local saveSummaries = saveManager:getAllSavesSummary(file_num) -- 124
-	local function saveSummaryToString(summary) -- 126
-		if not summary.exists then -- 126
-			return ("存档" .. tostring(summary.slot)) .. "\n（无存档）" -- 128
-		end -- 128
-		return ((((("存档" .. tostring(summary.slot)) .. "\n进度：") .. summary.progress) .. "\n游玩时长：") .. summary.playTime) .. "\n" -- 130
-	end -- 126
-	local function saveDetailToString(detail) -- 132
-		if not detail.exists then -- 132
-			return ("存档" .. tostring(detail.slot)) .. "\n（无存档）" -- 134
-		end -- 134
-		local itemsStr = #detail.items > 0 and ("道具：" .. table.concat(detail.items, ", ")) .. "\n" or "道具：（无道具）\n" -- 136
-		return (((((("存档" .. tostring(detail.slot)) .. "\n进度：") .. detail.progress) .. "\n游玩时长：") .. detail.playTime) .. "\n") .. itemsStr -- 139
-	end -- 132
-	local function loadSaveFile(switched, tag) -- 144
-		if not tag then -- 144
-			return nil -- 145
-		end -- 145
-		local slot = __TS__ParseInt(__TS__StringTrim(tag)) -- 146
-		if not saveSummaries[slot + 1].exists then -- 146
-			print("新游戏") -- 148
-			return nil -- 149
-		end -- 149
-		local saveDetail = saveManager:getSaveDetail(slot) -- 151
-		if not saveDetail then -- 151
-			print("存档损坏，请删除该存档") -- 153
-			return nil -- 154
-		else -- 154
-			print(saveDetailToString(saveDetail)) -- 157
+	local root = Node() -- 61
+	local background = Sprite("Image/background/background.png") -- 62
+	if background then -- 62
+		background.size = designSize -- 64
+		root:addChild(background) -- 65
+	end -- 65
+	local ____Button_result_0 = Button({ -- 69
+		type = "click", -- 70
+		x = buttonx, -- 71
+		y = buttony[1], -- 72
+		width = buttonWidth, -- 73
+		height = buttonHeight, -- 74
+		onClick = continueGameClick, -- 75
+		text = "继续游戏" -- 76
+	}) -- 76
+	local bt1 = ____Button_result_0.root -- 76
+	local ____Button_result_1 = Button({ -- 80
+		type = "click", -- 81
+		x = buttonx, -- 82
+		y = buttony[2], -- 83
+		width = buttonWidth, -- 84
+		height = buttonHeight, -- 85
+		onClick = newGameClick, -- 86
+		text = "新游戏" -- 87
+	}) -- 87
+	local bt2 = ____Button_result_1.root -- 87
+	local ____Button_result_2 = Button({ -- 91
+		type = "click", -- 92
+		x = buttonx, -- 93
+		y = buttony[3], -- 94
+		width = buttonWidth, -- 95
+		height = buttonHeight, -- 96
+		onClick = loadSaveClick, -- 97
+		text = "读取存档" -- 98
+	}) -- 98
+	local bt3 = ____Button_result_2.root -- 98
+	local ____Button_result_3 = Button({ -- 102
+		type = "click", -- 103
+		x = buttonx, -- 104
+		y = buttony[4], -- 105
+		width = buttonWidth, -- 106
+		height = buttonHeight, -- 107
+		onClick = exitClick, -- 108
+		text = "退出游戏" -- 109
+	}) -- 109
+	local bt4 = ____Button_result_3.root -- 109
+	root:addChild(bt1) -- 111
+	root:addChild(bt2) -- 112
+	root:addChild(bt3) -- 113
+	root:addChild(bt4) -- 114
+	return root -- 116
+end -- 34
+local function SavePage() -- 119
+	local saveSlots -- 119
+	local file_num = 4 -- 120
+	local file_label_size = {width = 250, height = 400} -- 121
+	local delete_button_size = {width = 20, height = 20} -- 122
+	local file_interval = 50 -- 123
+	local totalWidth = file_num * file_label_size.width + (file_num - 1) * file_interval -- 124
+	local label_x = {} -- 126
+	do -- 126
+		local i = 0 -- 127
+		while i < file_num do -- 127
+			label_x[#label_x + 1] = -totalWidth / 2 + file_label_size.width / 2 + i * (file_label_size.width + file_interval) -- 128
+			i = i + 1 -- 127
+		end -- 127
+	end -- 127
+	local saveManager = __TS__New(SaveManager) -- 131
+	local saveSummaries = saveManager:getAllSavesSummary(file_num) -- 132
+	local function saveSummaryToString(summary) -- 134
+		if not summary.exists then -- 134
+			return ("存档" .. tostring(summary.slot)) .. "\n（无存档）" -- 136
+		end -- 136
+		return ((((("存档" .. tostring(summary.slot)) .. "\n进度：") .. summary.progress) .. "\n游玩时长：") .. summary.playTime) .. "\n" -- 138
+	end -- 134
+	local function saveDetailToString(detail) -- 140
+		if not detail.exists then -- 140
+			return ("存档" .. tostring(detail.slot)) .. "\n（无存档）" -- 142
+		end -- 142
+		local itemsStr = #detail.items > 0 and ("道具：" .. table.concat(detail.items, ", ")) .. "\n" or "道具：（无道具）\n" -- 144
+		return (((((("存档" .. tostring(detail.slot)) .. "\n进度：") .. detail.progress) .. "\n游玩时长：") .. detail.playTime) .. "\n") .. itemsStr -- 147
+	end -- 140
+	local function loadSaveFile(switched, tag) -- 152
+		if not tag then -- 152
+			return nil -- 153
+		end -- 153
+		local slot = __TS__ParseInt(__TS__StringTrim(tag)) -- 154
+		if not saveSummaries[slot + 1].exists then -- 154
+			print("新游戏") -- 156
+			return nil -- 157
 		end -- 157
-		return nil -- 159
-	end -- 144
-	local function deleteSave(switched, tag) -- 161
-		if not tag then -- 161
+		local saveDetail = saveManager:getSaveDetail(slot) -- 159
+		if not saveDetail then -- 159
+			print("存档损坏，请删除该存档") -- 161
 			return nil -- 162
-		end -- 162
-		local slot = __TS__ParseInt(__TS__StringTrim(tag)) -- 163
-		local result = saveManager:deleteSave(slot) -- 164
-		if result then -- 164
-			saveSummaries = saveManager:getAllSavesSummary(file_num) -- 166
-			saveSlots[slot + 1].st(saveSummaryToString(saveSummaries[slot + 1])) -- 167
-		end -- 167
-		return -- 169
-	end -- 161
-	local root = Node() -- 173
-	saveSlots = {} -- 175
-	do -- 175
-		local i = 0 -- 179
-		while i < file_num do -- 179
-			local ____Button_result_4 = Button({ -- 180
-				type = "click", -- 181
-				x = label_x[i + 1], -- 182
-				y = 0, -- 183
-				width = file_label_size.width, -- 184
-				height = file_label_size.height, -- 185
-				onClick = loadSaveFile, -- 186
-				text = saveSummaryToString(saveSummaries[i + 1]), -- 187
-				tag = tostring(i), -- 188
-				fontSize = 30, -- 189
-				textWidth = file_label_size.width -- 190
-			}) -- 190
-			local bt = ____Button_result_4.root -- 190
-			local st = ____Button_result_4.setText -- 190
-			saveSlots[#saveSlots + 1] = {bt = bt, st = st} -- 192
-			root:addChild(saveSlots[i + 1].bt or Node()) -- 193
-			i = i + 1 -- 179
-		end -- 179
-	end -- 179
-	local deleteButton = {} -- 196
-	do -- 196
-		local i = 0 -- 197
-		while i < file_num do -- 197
-			local ____Button_result_5 = Button({ -- 198
-				type = "click", -- 199
-				x = label_x[i + 1], -- 200
-				y = -file_label_size.height / 2 - delete_button_size.height / 2 - 10, -- 201
-				width = delete_button_size.width, -- 202
-				height = delete_button_size.height, -- 203
-				onClick = deleteSave, -- 204
-				text = "删除存档", -- 205
-				tag = tostring(i), -- 206
-				fontSize = 20, -- 207
-				textWidth = file_label_size.width -- 208
-			}) -- 208
-			local bt = ____Button_result_5.root -- 208
-			deleteButton[#deleteButton + 1] = bt -- 210
-			root:addChild(deleteButton[i + 1] or Node()) -- 211
-			i = i + 1 -- 197
-		end -- 197
-	end -- 197
-	local lb1 = Label(fontName, 20) -- 214
-	if lb1 then -- 214
-		lb1.text = "!注意：存档0为默认存档会被自动存档覆盖！" -- 216
-		lb1.color = Color(4294923520) -- 217
-		lb1.position = Vec2(label_x[1], file_label_size.height / 2 + 50) -- 218
-		root:addChild(lb1) -- 219
-	end -- 219
-	return root -- 224
-end -- 111
-updateViewSize() -- 230
-adjustWinSize() -- 231
-Director.entry:onAppChange(function(settingName) -- 232
-	if settingName == "Size" then -- 232
-		updateViewSize() -- 234
-	end -- 234
-end) -- 232
-SavePage() -- 240
-return ____exports -- 240
+		else -- 162
+			print(saveDetailToString(saveDetail)) -- 165
+		end -- 165
+		return nil -- 167
+	end -- 152
+	local function deleteSave(switched, tag) -- 169
+		if not tag then -- 169
+			return nil -- 170
+		end -- 170
+		local slot = __TS__ParseInt(__TS__StringTrim(tag)) -- 171
+		local result = saveManager:deleteSave(slot) -- 172
+		if result then -- 172
+			saveSummaries = saveManager:getAllSavesSummary(file_num) -- 174
+			saveSlots[slot + 1].st(saveSummaryToString(saveSummaries[slot + 1])) -- 175
+		end -- 175
+		return -- 177
+	end -- 169
+	local root = Node() -- 181
+	saveSlots = {} -- 183
+	do -- 183
+		local i = 0 -- 187
+		while i < file_num do -- 187
+			local ____Button_result_4 = Button({ -- 188
+				type = "click", -- 189
+				x = label_x[i + 1], -- 190
+				y = 0, -- 191
+				width = file_label_size.width, -- 192
+				height = file_label_size.height, -- 193
+				onClick = loadSaveFile, -- 194
+				text = saveSummaryToString(saveSummaries[i + 1]), -- 195
+				tag = tostring(i), -- 196
+				fontSize = 30, -- 197
+				textWidth = file_label_size.width -- 198
+			}) -- 198
+			local bt = ____Button_result_4.root -- 198
+			local st = ____Button_result_4.setText -- 198
+			saveSlots[#saveSlots + 1] = {bt = bt, st = st} -- 200
+			root:addChild(saveSlots[i + 1].bt or Node()) -- 201
+			i = i + 1 -- 187
+		end -- 187
+	end -- 187
+	local deleteButton = {} -- 204
+	do -- 204
+		local i = 0 -- 205
+		while i < file_num do -- 205
+			local ____Button_result_5 = Button({ -- 206
+				type = "click", -- 207
+				x = label_x[i + 1], -- 208
+				y = -file_label_size.height / 2 - delete_button_size.height / 2 - 10, -- 209
+				width = delete_button_size.width, -- 210
+				height = delete_button_size.height, -- 211
+				onClick = deleteSave, -- 212
+				text = "删除存档", -- 213
+				tag = tostring(i), -- 214
+				fontSize = 20, -- 215
+				textWidth = file_label_size.width -- 216
+			}) -- 216
+			local bt = ____Button_result_5.root -- 216
+			deleteButton[#deleteButton + 1] = bt -- 218
+			root:addChild(deleteButton[i + 1] or Node()) -- 219
+			i = i + 1 -- 205
+		end -- 205
+	end -- 205
+	local lb1 = Label(fontName, 20) -- 222
+	if lb1 then -- 222
+		lb1.text = "!注意：存档0为默认存档会被自动存档覆盖！" -- 224
+		lb1.color = Color(4294923520) -- 225
+		lb1.position = Vec2(label_x[1], file_label_size.height / 2 + 50) -- 226
+		root:addChild(lb1) -- 227
+	end -- 227
+	return root -- 232
+end -- 119
+updateViewSize() -- 238
+adjustWinSize() -- 239
+Director.entry:onAppChange(function(settingName) -- 240
+	if settingName == "Size" then -- 240
+		updateViewSize() -- 242
+	end -- 242
+end) -- 240
+SavePage() -- 248
+return ____exports -- 248

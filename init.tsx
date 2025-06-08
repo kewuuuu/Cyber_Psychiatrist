@@ -1,7 +1,7 @@
 import { React, toNode } from 'DoraX';
 import { Director, Node, Sprite, Size, App, Vec2, View, tolua, TypeName, Camera2D, Label, TextAlign, Color } from 'Dora';
-import { Button } from 'Script/UI/Button'; // 确保路径正确
-import { DB, thread, SQL } from "Dora";
+import { Button } from 'Script/UI/Button';
+import { DB, thread, SQL, Audio } from "Dora";
 import { SaveManager, SaveSummary, SaveDetail } from "Script/SaveManager";
 
 const designSize = Size(1280, 720);
@@ -21,6 +21,14 @@ const adjustWinSize = () => {
 	App.winSize = winsize;
 	print(`Visual size: ${App.visualSize}`);
 };
+
+//音频
+const resources = {
+	textures: [],
+	models: [],
+	sounds: ["Audio/《蝉鸣间的电子幽梦》欢快的桂花冰淇淋.mp3"]
+};
+Audio.playStream(resources.sounds[0], true);
 
 // 启动场景
 const StartUp = () => {
@@ -111,7 +119,7 @@ const StartUp = () => {
 const SavePage = () => {
 	const file_num = 4;
 	const file_label_size = { width: 250, height: 400 };
-	const delete_button_size = { width: 20, height: 20};
+	const delete_button_size = { width: 20, height: 20 };
 	const file_interval = 50;
 	const totalWidth = (file_num * file_label_size.width) + ((file_num - 1) * file_interval);
 
@@ -142,42 +150,42 @@ const SavePage = () => {
 
 	//各类事件
 	const loadSaveFile = (switched: boolean, tag: string | null) => {
-		if(!tag)return null;
+		if (!tag) return null;
 		const slot = parseInt(tag.trim());
-		if(!saveSummaries[slot].exists){
+		if (!saveSummaries[slot].exists) {
 			print("新游戏");
 			return null;
 		}
 		const saveDetail = saveManager.getSaveDetail(slot);
-		if(!saveDetail){
+		if (!saveDetail) {
 			print("存档损坏，请删除该存档");
 			return null;
 		}
-		else{
+		else {
 			print(saveDetailToString(saveDetail));
 		}
 		return null;
 	};
 	const deleteSave = (switched: boolean, tag: string | null) => {
-		if(!tag)return null;
+		if (!tag) return null;
 		const slot = parseInt(tag.trim());
 		const result = saveManager.deleteSave(slot);
-		if(result){
+		if (result) {
 			saveSummaries = saveManager.getAllSavesSummary(file_num);
 			saveSlots[slot].st(saveSummaryToString(saveSummaries[slot]));
 		}
-		return ;
+		return;
 	}
 
 	//场景
 	const root = Node();
 
-	const saveSlots:{
-  bt: Node.Type;
-  st: (this:void,text: string) => void;
-}[] = [];
+	const saveSlots: {
+		bt: Node.Type;
+		st: (this: void, text: string) => void;
+	}[] = [];
 	for (let i = 0; i < file_num; i++) {
-		const { root: bt ,setText: st} = Button({
+		const { root: bt, setText: st } = Button({
 			type: "click",
 			x: label_x[i],
 			y: 0,
@@ -189,7 +197,7 @@ const SavePage = () => {
 			fontSize: 30,
 			textWidth: file_label_size.width,
 		});
-		saveSlots.push({bt,st});
+		saveSlots.push({ bt, st });
 		root.addChild(saveSlots[i].bt || Node());
 	}
 
@@ -198,7 +206,7 @@ const SavePage = () => {
 		const { root: bt } = Button({
 			type: "click",
 			x: label_x[i],
-			y: -file_label_size.height/2-delete_button_size.height/2-10,
+			y: -file_label_size.height / 2 - delete_button_size.height / 2 - 10,
 			width: delete_button_size.width,
 			height: delete_button_size.height,
 			onClick: deleteSave,
@@ -219,7 +227,7 @@ const SavePage = () => {
 		root.addChild(lb1);
 	}
 
-	
+
 
 	return root;
 }
@@ -242,3 +250,12 @@ SavePage();
 // if(background){
 // 	background.size = Size(1149,720);
 // }
+
+
+//删除文本的样式
+// const lb = Label("sarasa-mono-sc-regular",20);
+// lb.color=Color(0xff888888);
+// lb.text="寻找机器人的脑袋";
+// const lb1 = Label("sarasa-mono-sc-regular",40);
+// lb1.color=Color(0xff888888);
+// lb1.text="—".repeat(lb.characterCount);
