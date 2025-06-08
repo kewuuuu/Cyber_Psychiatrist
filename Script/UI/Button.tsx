@@ -1,4 +1,4 @@
-import { Node, Sprite, Label, Vec2, TextAlign } from 'Dora';
+import { Node, Sprite, Label, Vec2, TextAlign, App, thread, sleep } from 'Dora';
 
 // 按钮状态类型
 export type ButtonState = 'normal' | 'hover' | 'pressed';
@@ -13,8 +13,9 @@ interface ButtonProps {
 	y?: number;
 	width?: number;
 	height?: number;
-	onClick?: (this:void, switched: boolean,tag: string|null) => void;
-	onStateChange?: (this:void, state: ButtonState) => void;
+	onClick?: (this: void, switched: boolean, tag: string | null) => void;
+	onDoubleClick?: (this: void, tag: string | null) => void;
+	onStateChange?: (this: void, state: ButtonState) => void;
 	normalImage?: string;
 	pressImage?: string;
 	text?: string;
@@ -23,7 +24,7 @@ interface ButtonProps {
 	fontSize?: number;
 	textWidth?: number;
 	alignment?: TextAlign;
-	tag?: string|null;
+	tag?: string | null;
 }
 
 export const Button = (props: ButtonProps) => {
@@ -35,6 +36,7 @@ export const Button = (props: ButtonProps) => {
 		width = 200,
 		height = 100,
 		onClick = () => { },
+		onDoubleClick = () => { },
 		onStateChange = () => { },
 		normalImage = "Image/button/button.clip|button_up",
 		pressImage = "Image/button/button.clip|button_down",
@@ -45,7 +47,7 @@ export const Button = (props: ButtonProps) => {
 		textWidth = Label.AutomaticWidth,
 		alignment = TextAlign.Center,
 		tag = null,
-		
+
 	} = props;
 
 	// 创建根节点
@@ -92,6 +94,7 @@ export const Button = (props: ButtonProps) => {
 	let tempchange = false;
 	let switched = false;
 	let visible = true;
+	let doubleClick = false;
 
 	// 更新状态函数
 	const setState = (newState: ButtonState) => {
@@ -103,7 +106,7 @@ export const Button = (props: ButtonProps) => {
 		}
 		onStateChange(newState);
 	};
-	
+
 	// 事件处理
 	clickNode.onTapBegan(touch => {
 		if (state === 'normal') {
@@ -124,24 +127,40 @@ export const Button = (props: ButtonProps) => {
 	clickNode.onTapped(() => {
 		if (type === 'click') {
 			setState('normal');
+			thread(() => {
+				sleep(0.3);
+				if (doubleClick) {
+					doubleClick = false;
+					onClick(switched, tag);
+					// print("单击");
+				}
+			});
+			if (doubleClick) {
+				doubleClick = false;
+				onDoubleClick(tag);
+				// print("双击");
+			} else {
+				doubleClick = true;
+			}
 		} else {
 			switched = !switched;
 			setState(switched ? 'pressed' : 'normal');
+			onClick(switched, tag);
 		}
-		onClick(switched,tag);
+		// print(App.runningTime);
 		return true;
 	});
 	//毫无用处
-	const setVisible=(tempvisible:boolean)=>{
+	const setVisible = (tempvisible: boolean) => {
 		visible = tempvisible;
-		if(buttonDown && buttonUp && buttonLabel){
-			if(visible){
+		if (buttonDown && buttonUp && buttonLabel) {
+			if (visible) {
 				const pressed = state === 'pressed';
 				buttonUp.visible = !pressed;
 				buttonDown.visible = pressed;
 				buttonLabel.visible = true;
 				root.addChild(clickNode);
-			}else{
+			} else {
 				buttonUp.visible = false;
 				buttonDown.visible = false;
 				buttonLabel.visible = false;
@@ -149,12 +168,12 @@ export const Button = (props: ButtonProps) => {
 			}
 		}
 	}
-	const setText=(temptext:string)=>{
-		if(buttonLabel){
+	const setText = (temptext: string) => {
+		if (buttonLabel) {
 			print(temptext);
-			buttonLabel.text=temptext;
+			buttonLabel.text = temptext;
 		}
 	}
 	// return {root:root,setVisible:setVisible};
-	return {root,setText};
+	return { root, setText };
 };
