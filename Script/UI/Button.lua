@@ -74,7 +74,7 @@ ____exports.Button = function(props) -- 37
 	end -- 52
 	local color = ____props_0.color -- 52
 	if color == nil then -- 52
-		color = Color(16777215) -- 53
+		color = Color(4294967295) -- 53
 	end -- 53
 	local textWidth = ____props_0.textWidth -- 53
 	if textWidth == nil then -- 53

@@ -2,6 +2,7 @@
 import { React, toNode, useRef } from 'DoraX';
 import { Node, Sprite, Label, Vec2, TextAlign, App, thread, sleep, Color, Size, ClipNode } from 'Dora';
 import { Button, ButtonState } from 'Button';
+import {ScrollBar} from 'ScrollBar';
 
 export enum AlignMode {
 	Horizontal = "horizontal",
@@ -14,8 +15,8 @@ export interface ListProps {
 	width?: number;
 	height?: number;
 	itemInterval?: number;
-	alignmode?: AlignMode;
-	autoLayout?: boolean;
+	alignmode?: AlignMode;//列表方向
+	autoLayout?: boolean;//列表项自动换行
 	itemwidth?: number;
 	itemheight?: number;
 	itemnum: number;
@@ -33,6 +34,7 @@ export interface ListProps {
 	alignment?: TextAlign;
 	textisdeleted?: boolean[] | boolean;
 
+	scrollblockImage?: string;
 	scrollbarwidth?:number;
 
 	tags?: string[] | string;
@@ -66,24 +68,18 @@ export const List = (props: ListProps) => {
 		textisdeleted = false,
 		tags = null,
 		backgroundImage = "Image/background/background.png",
+		scrollblockImage = "Image/button/button.png",
 		scrollbarwidth = 10,
 	} = props;
 
 	const root = Node();
 	root.x = x;
 	root.y = y;
-	const background = Sprite(backgroundImage);
-	if(background){
-		background.size = Size(width,height);
-	}
-	const clipnode = ClipNode(background||Node());
-	root.addChild(clipnode);
-	if(background)
-		clipnode.addChild(background);
-	
 	const buttonpositions :{x:number,y:number}[] = [];
-	if()
-
+	const items_position: Vec2.Type[] = [];
+	for(let i=0;i<itemnum;i++){
+		items_position
+	}
 	const items: {
 		bt: Node.Type;
 		st: (this: void, text: string) => void;
@@ -103,6 +99,30 @@ export const List = (props: ListProps) => {
 		saveSlots.push({ bt, st });
 		root.addChild(saveSlots[i].bt || Node());
 	}
+
+	if(alignmode === AlignMode.Horizontal&&autoLayout || alignmode===AlignMode.Vertical&&!autoLayout){
+		//竖向
+		const background = ScrollBar({
+			x=0,
+			y=0,
+			width=width,
+			height=height,
+			alignmode=AlignMode.Vertical,
+			backgroundImage=backgroundImage,
+			scrollblockImage=scrollblockImage,
+			scrollbarwidth=scrollbarwidth,
+			totalwidth=0,
+			nowposition=0,
+			children=,
+		});
+	}else{
+
+	}
+
+	
+	
+
+	
 
 	const 
 

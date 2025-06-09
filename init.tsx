@@ -1,9 +1,18 @@
 import { React, toNode } from 'DoraX';
-import { Director, Node, Sprite, Size, App, Vec2, View, tolua, TypeName, Camera2D, Label, TextAlign, Color } from 'Dora';
+import { Director, Node, Sprite, Size, App, Vec2, View, tolua, TypeName, Camera2D, Label, TextAlign, Color, sleep, Path, Content } from 'Dora';
 import { Button } from 'Script/UI/Button';
 import { DB, thread, SQL, Audio } from "Dora";
 import { SaveManager, SaveSummary, SaveDetail } from "Script/SaveManager";
-import {ScrollBar, AlignMode} from "Script/UI/ScrollBar"
+import { ScrollBar, AlignMode } from "Script/UI/ScrollBar"
+import { Model } from "Dora";
+
+// const currentScriptPath = Path.getScriptPath("Dora")
+// Content.searchPaths = {
+// 	Path(currentScriptPath, "Script"),
+// 	Path(currentScriptPath),
+// 	Path(Content.assetPath, "Script", "Lib"),
+// 	Path(Content.assetPath, "Script", "Lib", "Dora", "zh-Hans")
+// }
 
 const designSize = Size(1280, 720);
 const winsize = Size(1600, 900);
@@ -22,6 +31,50 @@ const adjustWinSize = () => {
 	App.winSize = winsize;
 	print(`Visual size: ${App.visualSize}`);
 };
+//播放动画
+const playAnimation = (node: Node.Type, names: string[], interval: number, loop: boolean) => {
+	node.removeAllChildren();
+	// const frames = [
+	// 	Sprite(`Image/art.clip|${name}1`) ?? Sprite(),
+	// 	Sprite(`Image/art.clip|${name}2`) ?? Sprite()
+	// ];
+	const frames: Sprite.Type[] = [];
+	for (let name of names) {
+		const frame = Sprite(name) ?? Sprite();
+		frame.visible = false;
+		frame.addTo(node);
+		frames.push(frame);
+	}
+	let i = 0;
+	frames[i].visible = true;
+	node.loop(() => {
+		sleep(interval);
+		frames[(i + 1) % names.length].visible = true;
+		frames[i].visible = false;
+		i = (i + 1) % names.length;
+		return !loop;
+	});
+};
+//存档操作
+const file_num = 4;
+const saveManager = new SaveManager();
+let saveSummaries = saveManager.getAllSavesSummary(file_num);
+//存档概要、详情tostring
+const saveSummaryToString = (summary: SaveSummary) => {
+	if (!summary.exists) {
+		return `存档${summary.slot}\n（无存档）`;
+	}
+	return `存档${summary.slot}\n进度：${summary.progress}\n游玩时长：${summary.playTime}\n`;
+}
+const saveDetailToString = (detail: SaveDetail): string => {
+	if (!detail.exists) {
+		return `存档${detail.slot}\n（无存档）`;
+	}
+	const itemsStr = detail.items.length > 0
+		? `道具：${detail.items.join(', ')}\n`
+		: `道具：（无道具）\n`;
+	return `存档${detail.slot}\n进度：${detail.progress}\n游玩时长：${detail.playTime}\n${itemsStr}`;
+};
 
 //音频
 const resources = {
@@ -33,9 +86,9 @@ Audio.playStream(resources.sounds[0], true);
 
 // 启动场景
 const StartUp = () => {
-	const buttonWidth = 200;
-	const buttonHeight = 100;
-	const buttonx = 0;
+	const buttonWidth = 312;
+	const buttonHeight = 124;
+	const buttonx = -400;
 	const buttony: number[] = [
 		designSize.height / 5 * 4 - designSize.height / 2,
 		designSize.height / 5 * 3 - designSize.height / 2,
@@ -52,7 +105,9 @@ const StartUp = () => {
 	};
 
 	const loadSaveClick = (switched: boolean, tag: string | null) => {
-		print(`加载游戏点击, switched: ${switched ? "on" : "off"}`);
+		// print(`加载游戏点击, switched: ${switched ? "on" : "off"}`);
+		Director.entry.removeAllChildren();
+		SavePage();
 	};
 
 	const exitClick = (switched: boolean, tag: string | null) => {
@@ -60,11 +115,23 @@ const StartUp = () => {
 		App.shutdown();
 	};
 	const root = Node();
-	const background = Sprite("Image/background/background.png");
-	if (background) {
-		background.size = designSize;
-		root.addChild(background);
+	const background = Node();
+	const names: string[] = [];
+	for (let i = 1; i <= 140; i++) {
+		let paddedNumber = i.toString();
+		while (paddedNumber.length < 4) {
+			paddedNumber = "0" + paddedNumber;
+		}
+		names.push(`Image/home/背景动画/${paddedNumber}.png`);
 	}
+	playAnimation(background, names, 1 / 12, true);
+
+	// const background = Sprite("Image/background/background.png");
+	// if (background) {
+	background.size = designSize;
+	background.position = Vec2(designSize.width / 2, designSize.height / 2)
+	root.addChild(background);
+	// }
 
 	// 按钮1
 	const { root: bt1 } = Button({
@@ -73,8 +140,14 @@ const StartUp = () => {
 		width: buttonWidth,
 		height: buttonHeight,
 		onClick: continueGameClick,
-		text: "继续游戏",
+		normalImage: "Image/home/jixvtouxi.png",
+		pressImage: "Image/home/jixvtouxi,anxia.png",
+		// text: "继续游戏",
 	});
+	const defaultSave = saveManager.getSaveDetail(0);
+	if(!(defaultSave && defaultSave.exists)){
+		bt1.visible=false;
+	}
 
 	//按钮2
 	const { root: bt2 } = Button({
@@ -83,7 +156,9 @@ const StartUp = () => {
 		width: buttonWidth,
 		height: buttonHeight,
 		onClick: newGameClick,
-		text: "新游戏",
+		normalImage: "Image/home/kaishiyouxi.png",
+		pressImage: "Image/home/kaishiyouxi,anxia.png",
+		// text: "新游戏",
 	});
 
 	// 按钮3
@@ -93,7 +168,9 @@ const StartUp = () => {
 		width: buttonWidth,
 		height: buttonHeight,
 		onClick: loadSaveClick,
-		text: "读取存档",
+		normalImage: "Image/home/cundang.png",
+		pressImage: "Image/home/cundang,anxia.png",
+		// text: "读取存档",
 	});
 
 	// 按钮4
@@ -103,7 +180,9 @@ const StartUp = () => {
 		width: buttonWidth,
 		height: buttonHeight,
 		onClick: exitClick,
-		text: "退出游戏",
+		normalImage: "Image/home/tuichuyouxi.png",
+		pressImage: "Image/home/tuichuyouxi,anxia.png",
+		// text: "退出游戏",
 	});
 	root.addChild(bt1);
 	root.addChild(bt2);
@@ -114,7 +193,6 @@ const StartUp = () => {
 };
 
 const SavePage = () => {
-	const file_num = 4;
 	const file_label_size = { width: 250, height: 400 };
 	const delete_button_size = { width: 20, height: 20 };
 	const file_interval = 50;
@@ -124,26 +202,6 @@ const SavePage = () => {
 	for (let i = 0; i < file_num; i++) {
 		label_x.push(-totalWidth / 2 + file_label_size.width / 2 + i * (file_label_size.width + file_interval));
 	}
-
-	const saveManager = new SaveManager();
-	let saveSummaries = saveManager.getAllSavesSummary(file_num);
-	//存档概要、详情tostring
-	const saveSummaryToString = (summary: SaveSummary) => {
-		if (!summary.exists) {
-			return `存档${summary.slot}\n（无存档）`;
-		}
-		return `存档${summary.slot}\n进度：${summary.progress}\n游玩时长：${summary.playTime}\n`;
-	}
-	const saveDetailToString = (detail: SaveDetail): string => {
-		if (!detail.exists) {
-			return `存档${detail.slot}\n（无存档）`;
-		}
-		const itemsStr = detail.items.length > 0
-			? `道具：${detail.items.join(', ')}\n`
-			: `道具：（无道具）\n`;
-		return `存档${detail.slot}\n进度：${detail.progress}\n游玩时长：${detail.playTime}\n${itemsStr}`;
-	};
-
 
 	//各类事件
 	const loadSaveFile = (switched: boolean, tag: string | null) => {
@@ -182,6 +240,7 @@ const SavePage = () => {
 		st: (this: void, text: string) => void;
 	}[] = [];
 	for (let i = 0; i < file_num; i++) {
+		// print(saveSummaryToString(saveSummaries[i]));
 		const { root: bt, setText: st } = Button({
 			x: label_x[i],
 			y: 0,
@@ -227,13 +286,27 @@ const SavePage = () => {
 	return root;
 }
 
+
 const testPage = () => {
-	const root = ScrollBar({
-		width: 500,
-		height: 500,
-		alignmode: AlignMode.Vertical,
-		totalwidth: 5000,
-	});
+	// const root = ScrollBar({
+	// 	width: 500,
+	// 	height: 500,
+	// 	alignmode: AlignMode.Vertical,
+	// 	totalwidth: 5000,
+	// });
+	// const character = Model("Image/home/beijingdonghua.mp4");
+	const root = Node();
+	const names: string[] = [];
+	for (let i = 1; i <= 140; i++) {
+		let paddedNumber = i.toString();
+		while (paddedNumber.length < 4) {
+			paddedNumber = "0" + paddedNumber;
+		}
+		names.push(`Image/home/背景动画/${paddedNumber}.png`);
+	}
+	playAnimation(root, names, 1 / 12, true);
+
+	// character.play(true);
 	return root;
 }
 
@@ -248,8 +321,8 @@ Director.entry.onAppChange(settingName => {
 
 // 启动场景
 // StartUp();
-// SavePage();
-testPage();
+SavePage();
+// testPage();
 // const background = Sprite("Image/background/background.png");
 // if(background){
 // 	background.size = Size(1149,720);

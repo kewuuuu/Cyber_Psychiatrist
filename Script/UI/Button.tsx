@@ -50,7 +50,7 @@ export const Button = (props: ButtonProps) => {
 		text = "",
 		fontName = "sarasa-mono-sc-regular",
 		fontSize = 40,
-		color = Color(0xffffff),
+		color = Color(0xffffffff),
 		textWidth = Label.AutomaticWidth,
 		alignment = TextAlign.Center,
 		tag = null,
