@@ -6,7 +6,9 @@ import { SaveManager, SaveSummary, SaveDetail } from "Script/SaveManager";
 import { ScrollBarNode, ScrollBar, AlignMode } from "Script/UI/ScrollBar"
 import { List, ListNode } from "Script/UI/List"
 import { Model } from "Dora";
-
+import { playAnimation } from "Script/Animation/Animation";
+import { CG } from "Script/Animation/CG";
+import { designSize, winsize, fontName } from "Script/config";
 // const currentScriptPath = Path.getScriptPath("Dora")
 // Content.searchPaths = {
 // 	Path(currentScriptPath, "Script"),
@@ -15,9 +17,6 @@ import { Model } from "Dora";
 // 	Path(Content.assetPath, "Script", "Lib", "Dora", "zh-Hans")
 // }
 
-const designSize = Size(1280, 720);
-const winsize = Size(1600, 900);
-const fontName = "sarasa-mono-sc-regular"
 
 // 更新视图大小
 const updateViewSize = () => {
@@ -31,30 +30,6 @@ const updateViewSize = () => {
 const adjustWinSize = () => {
 	App.winSize = winsize;
 	print(`Visual size: ${App.visualSize}`);
-};
-//播放动画
-const playAnimation = (node: Node.Type, names: string[], interval: number, loop: boolean) => {
-	node.removeAllChildren();
-	// const frames = [
-	// 	Sprite(`Image/art.clip|${name}1`) ?? Sprite(),
-	// 	Sprite(`Image/art.clip|${name}2`) ?? Sprite()
-	// ];
-	const frames: Sprite.Type[] = [];
-	for (let name of names) {
-		const frame = Sprite(name) ?? Sprite();
-		frame.visible = false;
-		frame.addTo(node);
-		frames.push(frame);
-	}
-	let i = 0;
-	frames[i].visible = true;
-	node.loop(() => {
-		sleep(interval);
-		frames[(i + 1) % names.length].visible = true;
-		frames[i].visible = false;
-		i = (i + 1) % names.length;
-		return !loop;
-	});
 };
 //存档操作
 const file_num = 4;
@@ -319,33 +294,34 @@ const testPage = () => {
 
 	// character.play(true);
 
-	const list=List({
-		x : 0,
-		y : 0,
-		width : 500,
-		height : 500,
-		itemInterval : 10,
-		alignmode : AlignMode.Vertical,
-		autoLayout : false,
-		lineInterval : 0,
-		itemwidth : 200,
-		itemheight : 100,
-		itemnum : 10,
-		normalImages : "Image/button/button.clip|button_up",
-		pressImages : "Image/button/button.clip|button_down",
-		texts : "sdfa",
-		fontName : "sarasa-mono-sc-regular",
-		fontSize : 20,
-		colors : Color(0xffffffff),
-		textWidth : Label.AutomaticWidth,
-		alignment : TextAlign.Center,
-		textisdeleted : false,
-		tags : "0",
-		backgroundImage : "Image/background/background.png",
-		scrollblockImage : "Image/button/button.png",
-		scrollbarwidth : 10,
-	});
+	// const list=List({
+	// 	x : 0,
+	// 	y : 0,
+	// 	width : 500,
+	// 	height : 500,
+	// 	itemInterval : 10,
+	// 	alignmode : AlignMode.Vertical,
+	// 	autoLayout : false,
+	// 	lineInterval : 0,
+	// 	itemwidth : 200,
+	// 	itemheight : 100,
+	// 	itemnum : 10,
+	// 	normalImages : "Image/button/button.clip|button_up",
+	// 	pressImages : "Image/button/button.clip|button_down",
+	// 	texts : "sdfa",
+	// 	fontName : "sarasa-mono-sc-regular",
+	// 	fontSize : 20,
+	// 	colors : Color(0xffffffff),
+	// 	textWidth : Label.AutomaticWidth,
+	// 	alignment : TextAlign.Center,
+	// 	textisdeleted : false,
+	// 	tags : "0",
+	// 	backgroundImage : "Image/background/background.png",
+	// 	scrollblockImage : "Image/button/button.png",
+	// 	scrollbarwidth : 10,
+	// });
 
+	CG(root,"Image/CG/1",3);
 	return root;
 }
 
@@ -359,9 +335,9 @@ Director.entry.onAppChange(settingName => {
 });
 
 // 启动场景
-StartUp();
+// StartUp();
 // SavePage();
-// testPage();
+testPage();
 // const background = Sprite("Image/background/background.png");
 // if(background){
 // 	background.size = Size(1149,720);
