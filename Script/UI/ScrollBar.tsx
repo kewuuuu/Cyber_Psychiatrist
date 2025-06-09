@@ -1,4 +1,5 @@
 // @preview-file on clear nolog
+//代码重复率有点高有空可以改进一下
 import { React, toNode, useRef } from 'DoraX';
 import { Node, Sprite, Label, Vec2, TextAlign, App, thread, sleep, Color, Size, ClipNode, DrawNode } from 'Dora';
 
@@ -18,7 +19,7 @@ export interface ScrollBarProps {
 	scrollblockImage?: string;
 	totalwidth: number;
 	nowposition?: number;//0-100
-	children?: any;
+	children?: any[];
 }
 export interface ScrollBarNode {
 	node: Node.Type;
@@ -60,21 +61,35 @@ export const ScrollBar = (props: ScrollBarProps) => {
 	const block = Sprite(scrollblockImage);
 	// if(track){
 	clipnode.addChild(track);
-	const child = props.children;
-	clipnode.addChild(child);
+
+	const changeorigintoupright=(pos: Vec2.Type) => {
+		if (alignmode === AlignMode.Horizontal) {
+			print(height-pos.y);
+			return Vec2(pos.x,height-pos.y);
+		}else{
+			print(height+totalwidth*nowposition/100-pos.y);
+			return Vec2(pos.x,height+totalwidth*nowposition/100-pos.y);
+		}
+	}
+
+	if(props.children)
+	for(let child of props.children){
+		child.position = changeorigintoupright(child.position);
+		clipnode.addChild(child);
+	}
 
 	const setTotalwidth = (totalwidth1: number) => {
 		totalwidth = totalwidth1;
 		if (block) {
 			if (alignmode === AlignMode.Horizontal) {
-				scale = totalwidth / width;
+				scale = (totalwidth-width) / width;
 				block.width = width / scale;
 				blockrange.min = block.width / 2 - width / 2;
 				blockrange.max = width / 2 - block.width / 2;
 				blockrange.de = blockrange.max - blockrange.min;
 				block.x = blockrange.min + blockrange.de * nowposition / 100;
 			} else {
-				scale = totalwidth / height;
+				scale = (totalwidth-height) / height;
 				block.height = height / scale;
 				blockrange.min = block.height / 2 - height / 2;
 				blockrange.max = height / 2 - block.height / 2;
@@ -83,7 +98,23 @@ export const ScrollBar = (props: ScrollBarProps) => {
 			}
 		}
 	}
-
+	const changeNowPosition=(np: number) =>{
+		const delta = np-(props.nowposition||0);
+		props.nowposition = np;
+		if(props.children)
+		if(alignmode === AlignMode.Horizontal){
+			for(let child of props.children){
+				// child.position = changeorigintoupright(child.position);
+				child.x-=(totalwidth-width)*delta/100;
+			}
+		}else{
+			for(let child of props.children){
+				// child.position = changeorigintoupright(child.position);
+				child.y+=(totalwidth-height)*delta/100;
+			}
+		}
+		
+	}
 	if (block) {
 		track.addChild(block);
 		if (alignmode === AlignMode.Horizontal) {
@@ -103,7 +134,7 @@ export const ScrollBar = (props: ScrollBarProps) => {
 				} else {
 					block.x = temp;
 				}
-				props.nowposition = (block.x - blockrange.min) * 100 / blockrange.de;
+				changeNowPosition((block.x - blockrange.min) * 100 / blockrange.de);
 				// print(props.nowposition);
 			});
 			clipnode.onMouseWheel(delta => {
@@ -115,7 +146,7 @@ export const ScrollBar = (props: ScrollBarProps) => {
 				} else {
 					block.x = temp;
 				}
-				props.nowposition = (block.x - blockrange.min) * 100 / blockrange.de;
+				changeNowPosition((block.x - blockrange.min) * 100 / blockrange.de);
 			});
 		} else {
 			track.x = width - scrollbarwidth / 2;
@@ -133,7 +164,7 @@ export const ScrollBar = (props: ScrollBarProps) => {
 				} else {
 					block.y = temp;
 				}
-				props.nowposition = (blockrange.max - block.y) * 100 / blockrange.de;
+				changeNowPosition((blockrange.max - block.y) * 100 / blockrange.de);
 				// print(props.nowposition);
 			});
 			clipnode.onMouseWheel(delta => {
@@ -145,7 +176,7 @@ export const ScrollBar = (props: ScrollBarProps) => {
 				} else {
 					block.y = temp;
 				}
-				props.nowposition = (blockrange.max - block.y) * 100 / blockrange.de;
+				changeNowPosition((blockrange.max - block.y) * 100 / blockrange.de);
 			});
 		}
 	}

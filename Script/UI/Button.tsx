@@ -1,5 +1,10 @@
 import { Node, Sprite, Label, Vec2, TextAlign, App, thread, sleep, Color } from 'Dora';
 
+export interface ButtonNode {
+	node: Node.Type;
+	setText: (this: void, temptext: string) => void;
+}
+
 // 按钮状态类型
 export enum ButtonState {
 	Normal = 'normal',
@@ -183,5 +188,6 @@ export const Button = (props: ButtonProps) => {
 		}
 	}
 	// return {root:root,setVisible:setVisible};
-	return { root, setText };
+	const buttonNode:ButtonNode={node:root,setText};
+	return buttonNode;
 };

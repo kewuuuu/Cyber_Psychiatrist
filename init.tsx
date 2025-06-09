@@ -1,9 +1,10 @@
 import { React, toNode } from 'DoraX';
 import { Director, Node, Sprite, Size, App, Vec2, View, tolua, TypeName, Camera2D, Label, TextAlign, Color, sleep, Path, Content } from 'Dora';
-import { Button } from 'Script/UI/Button';
+import { Button, ButtonNode } from 'Script/UI/Button';
 import { DB, thread, SQL, Audio } from "Dora";
 import { SaveManager, SaveSummary, SaveDetail } from "Script/SaveManager";
-import { ScrollBar, AlignMode } from "Script/UI/ScrollBar"
+import { ScrollBarNode, ScrollBar, AlignMode } from "Script/UI/ScrollBar"
+import { List, ListNode } from "Script/UI/List"
 import { Model } from "Dora";
 
 // const currentScriptPath = Path.getScriptPath("Dora")
@@ -134,7 +135,7 @@ const StartUp = () => {
 	// }
 
 	// 按钮1
-	const { root: bt1 } = Button({
+	const bt1 = Button({
 		x: buttonx,
 		y: buttony[0],
 		width: buttonWidth,
@@ -146,11 +147,11 @@ const StartUp = () => {
 	});
 	const defaultSave = saveManager.getSaveDetail(0);
 	if(!(defaultSave && defaultSave.exists)){
-		bt1.visible=false;
+		bt1.node.visible=false;
 	}
 
 	//按钮2
-	const { root: bt2 } = Button({
+	const bt2 = Button({
 		x: buttonx,
 		y: buttony[1],
 		width: buttonWidth,
@@ -162,7 +163,7 @@ const StartUp = () => {
 	});
 
 	// 按钮3
-	const { root: bt3 } = Button({
+	const bt3 = Button({
 		x: buttonx,
 		y: buttony[2],
 		width: buttonWidth,
@@ -174,7 +175,7 @@ const StartUp = () => {
 	});
 
 	// 按钮4
-	const { root: bt4 } = Button({
+	const bt4 = Button({
 		x: buttonx,
 		y: buttony[3],
 		width: buttonWidth,
@@ -184,10 +185,10 @@ const StartUp = () => {
 		pressImage: "Image/home/tuichuyouxi,anxia.png",
 		// text: "退出游戏",
 	});
-	root.addChild(bt1);
-	root.addChild(bt2);
-	root.addChild(bt3);
-	root.addChild(bt4);
+	root.addChild(bt1.node);
+	root.addChild(bt2.node);
+	root.addChild(bt3.node);
+	root.addChild(bt4.node);
 
 	return root;
 };
@@ -227,7 +228,7 @@ const SavePage = () => {
 		const result = saveManager.deleteSave(slot);
 		if (result) {
 			saveSummaries = saveManager.getAllSavesSummary(file_num);
-			saveSlots[slot].st(saveSummaryToString(saveSummaries[slot]));
+			saveSlots[slot].setText(saveSummaryToString(saveSummaries[slot]));
 		}
 		return;
 	}
@@ -235,13 +236,10 @@ const SavePage = () => {
 	//场景
 	const root = Node();
 
-	const saveSlots: {
-		bt: Node.Type;
-		st: (this: void, text: string) => void;
-	}[] = [];
+	const saveSlots: ButtonNode[] = [];
 	for (let i = 0; i < file_num; i++) {
 		// print(saveSummaryToString(saveSummaries[i]));
-		const { root: bt, setText: st } = Button({
+		const bt = Button({
 			x: label_x[i],
 			y: 0,
 			width: file_label_size.width,
@@ -252,13 +250,13 @@ const SavePage = () => {
 			fontSize: 30,
 			textWidth: file_label_size.width,
 		});
-		saveSlots.push({ bt, st });
-		root.addChild(saveSlots[i].bt || Node());
+		saveSlots.push(bt);
+		root.addChild(saveSlots[i].node);
 	}
 
 	const deleteButton = [];
 	for (let i = 0; i < file_num; i++) {
-		const { root: bt } = Button({
+		const bt = Button({
 			x: label_x[i],
 			y: -file_label_size.height / 2 - delete_button_size.height / 2 - 10,
 			width: delete_button_size.width,
@@ -270,7 +268,7 @@ const SavePage = () => {
 			textWidth: file_label_size.width,
 		});
 		deleteButton.push(bt);
-		root.addChild(deleteButton[i] || Node());
+		root.addChild(deleteButton[i].node);
 	}
 
 	const lb1 = Label(fontName, 20);
@@ -281,32 +279,73 @@ const SavePage = () => {
 		root.addChild(lb1);
 	}
 
-
-
 	return root;
 }
 
 
 const testPage = () => {
+	const root= Node();
+	// const { root: bt1 } = Button({
+	// 	x: 52,
+	// 	y: 52,
+	// 	width: 100,
+	// 	height: 100,
+	// 	// text: "读取存档",
+	// });
+	// const { root: bt2 } = Button({
+	// 	x: 252,
+	// 	y: 252,
+	// 	width: 100,
+	// 	height: 100,
+	// 	// text: "读取存档",
+	// });
 	// const root = ScrollBar({
 	// 	width: 500,
 	// 	height: 500,
-	// 	alignmode: AlignMode.Vertical,
+	// 	alignmode: AlignMode.Horizontal,
 	// 	totalwidth: 5000,
+	// 	children:[bt1,bt2],
 	// });
-	// const character = Model("Image/home/beijingdonghua.mp4");
-	const root = Node();
-	const names: string[] = [];
-	for (let i = 1; i <= 140; i++) {
-		let paddedNumber = i.toString();
-		while (paddedNumber.length < 4) {
-			paddedNumber = "0" + paddedNumber;
-		}
-		names.push(`Image/home/背景动画/${paddedNumber}.png`);
-	}
-	playAnimation(root, names, 1 / 12, true);
+	// const root = Node();
+	// const names: string[] = [];
+	// for (let i = 1; i <= 140; i++) {
+	// 	let paddedNumber = i.toString();
+	// 	while (paddedNumber.length < 4) {
+	// 		paddedNumber = "0" + paddedNumber;
+	// 	}
+	// 	names.push(`Image/home/背景动画/${paddedNumber}.png`);
+	// }
+	// playAnimation(root, names, 1 / 12, true);
 
 	// character.play(true);
+
+	const list=List({
+		x : 0,
+		y : 0,
+		width : 500,
+		height : 500,
+		itemInterval : 10,
+		alignmode : AlignMode.Vertical,
+		autoLayout : false,
+		lineInterval : 0,
+		itemwidth : 200,
+		itemheight : 100,
+		itemnum : 10,
+		normalImages : "Image/button/button.clip|button_up",
+		pressImages : "Image/button/button.clip|button_down",
+		texts : "sdfa",
+		fontName : "sarasa-mono-sc-regular",
+		fontSize : 20,
+		colors : Color(0xffffffff),
+		textWidth : Label.AutomaticWidth,
+		alignment : TextAlign.Center,
+		textisdeleted : false,
+		tags : "0",
+		backgroundImage : "Image/background/background.png",
+		scrollblockImage : "Image/button/button.png",
+		scrollbarwidth : 10,
+	});
+
 	return root;
 }
 
@@ -320,8 +359,8 @@ Director.entry.onAppChange(settingName => {
 });
 
 // 启动场景
-// StartUp();
-SavePage();
+StartUp();
+// SavePage();
 // testPage();
 // const background = Sprite("Image/background/background.png");
 // if(background){
@@ -336,3 +375,4 @@ SavePage();
 // const lb1 = Label("sarasa-mono-sc-regular",40);
 // lb1.color=Color(0xff888888);
 // lb1.text="—".repeat(lb.characterCount);
+//删除文本用\u0336插入实现
