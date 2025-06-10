@@ -1,12 +1,12 @@
 import { React, toNode } from 'DoraX';
-import { Director, Node, Sprite, Size, App, Vec2, View, tolua, TypeName, Camera2D, Label, TextAlign, Color, sleep, Path, Content } from 'Dora';
+import { Director, Node, Sprite, Size, App, Vec2, View, tolua, TypeName, Camera2D, Label, TextAlign, Color, sleep, Path, Content, Routine } from 'Dora';
 import { Button, ButtonNode } from 'Script/UI/Button';
 import { DB, thread, SQL, Audio } from "Dora";
 import { SaveManager, SaveSummary, SaveDetail } from "Script/SaveManager";
 import { ScrollBarNode, ScrollBar, AlignMode } from "Script/UI/ScrollBar"
 import { List, ListNode } from "Script/UI/List"
 import { Model } from "Dora";
-import { playAnimation } from "Script/Animation/Animation";
+import { playAnimation , NodeMove} from "Script/Animation/Animation";
 import { CG } from "Script/Animation/CG";
 import { designSize, winsize, fontName } from "Script/config";
 // const currentScriptPath = Path.getScriptPath("Dora")
@@ -260,13 +260,21 @@ const SavePage = () => {
 
 const testPage = () => {
 	const root= Node();
-	// const { root: bt1 } = Button({
+	//移动动画
+	// const testClick = (switched: boolean, tag: string | null) => {
+	// 	// print(App.elapsedTime);
+	// 	if(moveCoroutine)
+	// 	Routine.remove(moveCoroutine);
+	// }
+	// const bt1 = Button({
 	// 	x: 52,
 	// 	y: 52,
 	// 	width: 100,
 	// 	height: 100,
+	// 	onClick:testClick,
 	// 	// text: "读取存档",
 	// });
+	// const moveCoroutine = NodeMove(bt1.node,10,[Vec2(-100,-100),Vec2(-100,100),Vec2(100,100),Vec2(100,-100)],true);
 	// const { root: bt2 } = Button({
 	// 	x: 252,
 	// 	y: 252,
@@ -321,7 +329,7 @@ const testPage = () => {
 	// 	scrollbarwidth : 10,
 	// });
 
-	CG(root,"Image/CG/1",3);
+	CG(root,"Image/CG/1",300,[2,1,3],[Vec2(-designSize.width/2,designSize.height/2),Vec2(-designSize.width/2,-designSize.height/2),Vec2(3*designSize.width/2,0)]);
 	return root;
 }
 

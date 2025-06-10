@@ -235,15 +235,25 @@ SavePage = function() -- 171
 end -- 171
 local function testPage() -- 261
 	local root = Node() -- 262
-	CG(root, "Image/CG/1", 3) -- 324
-	return root -- 325
+	CG( -- 332
+		root, -- 332
+		"Image/CG/1", -- 332
+		300, -- 332
+		{2, 1, 3}, -- 332
+		{ -- 332
+			Vec2(-designSize.width / 2, designSize.height / 2), -- 332
+			Vec2(-designSize.width / 2, -designSize.height / 2), -- 332
+			Vec2(3 * designSize.width / 2, 0) -- 332
+		} -- 332
+	) -- 332
+	return root -- 333
 end -- 261
-updateViewSize() -- 329
-adjustWinSize() -- 330
-Director.entry:onAppChange(function(settingName) -- 331
-	if settingName == "Size" then -- 331
-		updateViewSize() -- 333
-	end -- 333
-end) -- 331
-testPage() -- 340
-return ____exports -- 340
+updateViewSize() -- 337
+adjustWinSize() -- 338
+Director.entry:onAppChange(function(settingName) -- 339
+	if settingName == "Size" then -- 339
+		updateViewSize() -- 341
+	end -- 341
+end) -- 339
+testPage() -- 348
+return ____exports -- 348
