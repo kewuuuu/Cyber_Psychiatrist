@@ -1,6 +1,6 @@
 // @preview-file on clear nolog
 import { React, toNode, useRef } from 'DoraX';
-import { Node, Sprite, Content, Size, Vec2, thread, wait, sleep } from 'Dora';
+import { Node, Sprite, Content, Size, Vec2, thread, wait, sleep, Path } from 'Dora';
 import { designSize, winsize, fontName } from "Script/config";
 import { NodeMove } from 'Script/Animation/Animation';
 
@@ -20,7 +20,7 @@ export const CG = (node: Node.Type,foldername: string, speed:number, intervals: 
 	let i = 0;
 	const frames: Sprite.Type[] = [];
 	for (let name of names) {
-		const frame = Sprite(foldername + '/' + name) ?? Sprite();
+		const frame = Sprite(Path(foldername,name)) ?? Sprite();
 		// frame.visible = false;
 		frame.position = pos[i];
 		frame.size = autoSize(frame.size, designSize);

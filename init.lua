@@ -5,6 +5,9 @@ local __TS__StringTrim = ____lualib.__TS__StringTrim -- 1
 local __TS__ParseInt = ____lualib.__TS__ParseInt -- 1
 local ____exports = {} -- 1
 local SavePage -- 1
+local ____DoraX = require("DoraX") -- 1
+local React = ____DoraX.React -- 1
+local toNode = ____DoraX.toNode -- 1
 local ____Dora = require("Dora") -- 2
 local Director = ____Dora.Director -- 2
 local Node = ____Dora.Node -- 2
@@ -235,25 +238,35 @@ SavePage = function() -- 171
 end -- 171
 local function testPage() -- 261
 	local root = Node() -- 262
-	CG( -- 332
-		root, -- 332
-		"Image/CG/1", -- 332
-		300, -- 332
-		{2, 1, 3}, -- 332
-		{ -- 332
-			Vec2(-designSize.width / 2, designSize.height / 2), -- 332
-			Vec2(-designSize.width / 2, -designSize.height / 2), -- 332
-			Vec2(3 * designSize.width / 2, 0) -- 332
-		} -- 332
-	) -- 332
-	return root -- 333
+	local Background = toNode(React.createElement( -- 331
+		"draw-node", -- 331
+		nil, -- 331
+		React.createElement("rect-shape", {width = designSize.width, height = designSize.height, fillColor = 4278190080}) -- 331
+	)) -- 331
+	if Background then -- 331
+		root:addChild(Background) -- 333
+	end -- 333
+	local cg = Node() -- 335
+	root:addChild(cg) -- 336
+	CG( -- 337
+		cg, -- 337
+		"Image/CG/1", -- 337
+		300, -- 337
+		{2, 1, 3}, -- 337
+		{ -- 337
+			Vec2(-designSize.width / 2, designSize.height / 2), -- 337
+			Vec2(-designSize.width / 2, -designSize.height / 2), -- 337
+			Vec2(3 * designSize.width / 2, 0) -- 337
+		} -- 337
+	) -- 337
+	return root -- 339
 end -- 261
-updateViewSize() -- 337
-adjustWinSize() -- 338
-Director.entry:onAppChange(function(settingName) -- 339
-	if settingName == "Size" then -- 339
-		updateViewSize() -- 341
-	end -- 341
-end) -- 339
-testPage() -- 348
-return ____exports -- 348
+updateViewSize() -- 343
+adjustWinSize() -- 344
+Director.entry:onAppChange(function(settingName) -- 345
+	if settingName == "Size" then -- 345
+		updateViewSize() -- 347
+	end -- 347
+end) -- 345
+testPage() -- 354
+return ____exports -- 354

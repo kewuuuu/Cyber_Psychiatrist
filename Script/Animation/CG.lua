@@ -7,6 +7,7 @@ local Size = ____Dora.Size -- 3
 local Vec2 = ____Dora.Vec2 -- 3
 local thread = ____Dora.thread -- 3
 local sleep = ____Dora.sleep -- 3
+local Path = ____Dora.Path -- 3
 local ____config = require("Script.config") -- 4
 local designSize = ____config.designSize -- 4
 local ____Animation = require("Script.Animation.Animation") -- 5
@@ -21,7 +22,7 @@ ____exports.CG = function(node, foldername, speed, intervals, pos) -- 12
 	local i = 0 -- 20
 	local frames = {} -- 21
 	for ____, name in ipairs(names) do -- 22
-		local frame = Sprite((foldername .. "/") .. name) or Sprite() -- 23
+		local frame = Sprite(Path(foldername, name)) or Sprite() -- 23
 		frame.position = pos[i + 1] -- 25
 		frame.size = autoSize(frame.size, designSize) -- 26
 		frame:addTo(node) -- 27

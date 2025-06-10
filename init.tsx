@@ -328,8 +328,14 @@ const testPage = () => {
 	// 	scrollblockImage : "Image/button/button.png",
 	// 	scrollbarwidth : 10,
 	// });
+	const Background = toNode(<draw-node><rect-shape width={designSize.width} height={designSize.height} fillColor={0xff000000}/></draw-node>);//0xffffffff
+	if(Background)
+	root.addChild(Background);
 
-	CG(root,"Image/CG/1",300,[2,1,3],[Vec2(-designSize.width/2,designSize.height/2),Vec2(-designSize.width/2,-designSize.height/2),Vec2(3*designSize.width/2,0)]);
+	const cg = Node();
+	root.addChild(cg);
+	CG(cg,"Image/CG/1",300,[2,1,3],[Vec2(-designSize.width/2,designSize.height/2),Vec2(-designSize.width/2,-designSize.height/2),Vec2(3*designSize.width/2,0)]);
+	
 	return root;
 }
 
